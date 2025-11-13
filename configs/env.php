@@ -1,6 +1,6 @@
 <?php
 
-define('BASE_URL',          'http://localhost/BaseExam/');
+define('BASE_URL',          'http://localhost/nhom10_Da1/');
 
 define('PATH_ROOT',         __DIR__ . '/../');
 
@@ -19,7 +19,7 @@ define('PATH_MODEL',            PATH_ROOT . 'models/');
 define('DB_HOST',     'localhost');
 define('DB_PORT',     '3306');
 define('DB_USERNAME', 'root');
-define('DB_PASSWORD', '');
+define('DB_PASSWORD', 'da1');
 define('DB_NAME',     '');
 define('DB_OPTIONS', [
     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
