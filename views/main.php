@@ -19,13 +19,13 @@
     <nav class="navbar navbar-expand-xxl bg-light justify-content-center">
         <ul class="navbar-nav">
             <li class="nav-item">
-                <a class="nav-link text-uppercase" href="<?= BASE_URL ?>"><b>Home</b></a>
+                <a class="nav-link text-uppercase" href="<?= BASE_URL ?>"><b>ADMIN</b></a>
             </li>
         </ul>
     </nav>
 
     <div class="container">
-        <h1 class="mt-3 mb-3"><?= $title ?? 'Home' ?></h1>
+        <h1 class="mt-3 mb-4"><?= $title ?? 'Home' ?></h1>
 
         <div class="row">
             <?php
