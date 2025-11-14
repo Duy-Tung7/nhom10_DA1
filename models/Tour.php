@@ -76,14 +76,14 @@ class Tour
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function addItinerary($tour_id, $day_number, $activity)
+    public function addItinerary($tour_id, $day_number, $activities)
     {
-        $sql = "INSERT INTO tour_itineraries (tour_id, day_number, activity) VALUES (:tour_id, :day_number, :activity)";
+        $sql = "INSERT INTO tour_itineraries (tour_id, day_number, activities) VALUES (:tour_id, :day_number, :activities)";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([
             ':tour_id' => $tour_id,
             ':day_number' => $day_number,
-            ':activity' => $activity
+            ':activities' => $activities
         ]);
     }
 
@@ -103,18 +103,17 @@ class Tour
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function addSupplier($tour_id, $name, $type, $contact)
+    public function addSupplier($tour_id, $name, $supplier_id)
     {
-        $sql = "INSERT INTO tour_suppliers (tour_id, name, type, contact) VALUES (:tour_id, :name, :type, :contact)";
+        $sql = "INSERT INTO tour_suppliers (tour_id, name, supplier_id) 
+            VALUES (:tour_id, :name, :supplier_id)";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([
             ':tour_id' => $tour_id,
             ':name' => $name,
-            ':type' => $type,
-            ':contact' => $contact
+            ':supplier_id' => $supplier_id
         ]);
     }
-
     public function deleteSupplier($id)
     {
         $sql = "DELETE FROM tour_suppliers WHERE id=:id";
