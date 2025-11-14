@@ -26,4 +26,23 @@ class BaseModel
       public function getConnection(){
         return $this->pdo;
     }
+      public function findByEmail($email)
+    {
+        $stmt = $this->pdo->prepare("SELECT * FROM users WHERE email = :email LIMIT 1");
+        $stmt->execute([':email' => $email]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+
+    public function checkLogin($email, $password)
+{
+    $email = strtolower(trim($email));
+    $hashedPassword = hash('sha256', $password); // QUAN TRỌNG !!!
+
+    $sql = "SELECT * FROM users WHERE email = ? AND password = ?";
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute([$email, $hashedPassword]);
+
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
 }

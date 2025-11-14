@@ -20,6 +20,10 @@ match ($action) {
     'admin-create-tour' => (new TourController)->create(),
     'admin-update-tour' => (new TourController)->update(),
     'admin-delete-tour' => (new TourController)->delete(),
+    // ==================== User ====================
+    'home'      => (new HomeController)->index(),
+    'login'     => (new HomeController)->login(),
+    'logout'    => (new HomeController)->logout(),
 
     default => (new HomeController)->index(),
 };
