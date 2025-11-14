@@ -10,7 +10,7 @@
                 <label for="">Tên danh mục</label>
                 <input type="text" class="form-control" name="name" value="<?= $data['name']?>" >
             </div>
-            <button class="btn btn-warning">Chỉnh sủa</button>
+            <button class="btn btn-warning">Chỉnh suwa</button>
          </form>
     </div>
     </div>
