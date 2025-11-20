@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -21,14 +23,6 @@
             box-shadow: 0 8px 20px rgba(0,0,0,0.3);
         }
 
-        .welcome-text {
-            text-align: center;
-            font-size: 1.5rem;
-            color: #007bff;
-            margin-bottom: 20px;
-            font-weight: bold;
-        }
-
         .btn-primary {
             width: 100%;
             background-color: #007bff;
@@ -42,42 +36,45 @@
         label {
             font-weight: 500;
         }
+
+        .alert {
+            text-align: center;
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 <body>
-    <?php
-    if(!empty($_SESSION['success'])){
-        echo '<div class="text-center mb-3" style="color:green;">'.$_SESSION['success'].'</div>';
-        unset($_SESSION['success']);
-    }
 
-    if(!empty($error)){
-        echo '<div class="text-center mb-3" style="color:red;">'.$error.'</div>';
-    }
-    ?>
-
-    <div class="login-container">
-
-        <form action="?action=login" method="post">
-            <h3 class="mb-4 text-center">Đăng nhập</h3>
-
-            <div class="mb-3">
-                <label for="name" class="form-label">Name</label>
-                <input type="name" class="form-control" id="name" name="name" required>
-            </div>
-
-            <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
-                <input type="email" class="form-control" id="email" name="email" required>
-            </div>
-
-            <div class="mb-3">
-                <label for="password" class="form-label">Mật khẩu</label>
-                <input type="password" class="form-control" id="password" name="password" required>
-            </div>
-
-            <button type="submit" class="btn btn-primary">Đăng nhập</button>
-        </form>
+<?php if (!empty($_SESSION['success'])): ?>
+    <div class="alert alert-success">
+        <?= htmlspecialchars($_SESSION['success']) ?>
     </div>
+    <?php unset($_SESSION['success']); ?>
+<?php endif; ?>
+
+<?php if (!empty($error)): ?>
+    <div class="alert alert-danger">
+        <?= htmlspecialchars($error) ?>
+    </div>
+<?php endif; ?>
+
+<div class="login-container">
+    <form action="?action=login" method="post">
+        <h3 class="mb-4 text-center">Đăng nhập</h3>
+
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" class="form-control" id="email" name="email" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="password" class="form-label">Mật khẩu</label>
+            <input type="password" class="form-control" id="password" name="password" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Đăng nhập</button>
+    </form>
+</div>
+
 </body>
 </html>

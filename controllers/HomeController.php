@@ -16,27 +16,27 @@ class HomeController
 
  
 
-    public function login()
-    {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $name     = $_POST['name'] ?? '';
-            $email    = $_POST['email'] ?? '';
-            $password = $_POST['password'] ?? '';
+   public function login()
+{
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $email    = $_POST['email'] ?? '';
+        $password = md5($_POST['password'] ?? ''); 
 
-            $user = $this->baseModel->checkLogin( $email, $password);
+        $user = $this->baseModel->checkLogin($email, $password);
 
-            if ($user) {
-                $_SESSION['user'] = $user;
-                header("Location: index.php?action=home");
-                exit;
-            } else {
-                $error = "Email hoặc mật khẩu sai!";
-                include __DIR__ . '/../views/login.php';
-            }
+        if ($user) {
+            $_SESSION['user'] = $user;
+            header("Location: index.php?action=home");
+            exit;
         } else {
+            $error = "Email hoặc mật khẩu sai!";
             include __DIR__ . '/../views/login.php';
         }
+    } else {
+        include __DIR__ . '/../views/login.php';
     }
+}
+
 
     public function logout()
 {

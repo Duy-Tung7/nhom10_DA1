@@ -25,5 +25,10 @@ match ($action) {
     'login'     => (new HomeController)->login(),
     'logout'    => (new HomeController)->logout(),
 
+    // ==================== HDV ====================
+    'admin-list-tour'   => (new TourGuideController)->index(),
+    'admin-guide-detail-tour' => (new TourGuideController)->detail(),
+    'admin-guide-list-tour' => (new TourGuideController)->addLog(),
+
     default => (new HomeController)->index(),
 };
