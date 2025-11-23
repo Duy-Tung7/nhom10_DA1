@@ -6,7 +6,7 @@ match ($action) {
     '/' => (new HomeController)->index(),
 
     // Dashboard admin
-    'admin-dashboard' => (new DashboardController)->index(),
+    'admin-sidebar' => (new DashboardController)->index(),
 
     // ==================== Category ====================
     'admin-list-categories'   => (new CategoryController)->index(), // Danh mục chính
@@ -24,6 +24,11 @@ match ($action) {
     'home'      => (new HomeController)->index(),
     'login'     => (new HomeController)->login(),
     'logout'    => (new HomeController)->logout(),
+
+    // ==================== HDV ====================
+    'admin-list-tour'   => (new TourGuideController)->index(),
+    'admin-guide-detail-tour' => (new TourGuideController)->detail(),
+    'admin-guide-list-tour' => (new TourGuideController)->addLog(),
 
     default => (new HomeController)->index(),
 };
