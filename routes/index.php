@@ -20,15 +20,14 @@ match ($action) {
     'admin-create-tour' => (new TourController)->create(),
     'admin-update-tour' => (new TourController)->update(),
     'admin-delete-tour' => (new TourController)->delete(),
+    'admin-tour-detail'  => (new TourController)->detail(),
+
     // ==================== User ====================
     'home'      => (new HomeController)->index(),
     'login'     => (new HomeController)->login(),
     'logout'    => (new HomeController)->logout(),
 
-    // ==================== HDV ====================
-    'admin-list-tour'   => (new TourGuideController)->index(),
-    'admin-guide-detail-tour' => (new TourGuideController)->detail(),
-    'admin-guide-list-tour' => (new TourGuideController)->addLog(),
+
 
     default => (new HomeController)->index(),
 };

@@ -2,76 +2,49 @@
 
 class TourController
 {
+    private $tour;
+    private $category;
+
+    public function __construct()
+    {
+        $this->tour = new Tour();
+        $this->category = new Category();
+    }
+
     // Hiển thị danh sách tour
     public function index()
     {
-        $tour = new Tour();
-        $listData = $tour->getAll();
+        $listData = $this->tour->getAll();
 
-        // Lấy thêm các bảng phụ
         foreach ($listData as &$t) {
-            $t['itineraries'] = $tour->getItineraries($t['id']);
-            $t['suppliers'] = $tour->getSuppliers($t['id']);
-            $t['images'] = $tour->getImages($t['id']);
-            $t['policies'] = $tour->getPolicies($t['id']);
+            $t['itineraries'] = $this->tour->getItineraries($t['id']);
+            $t['suppliers']   = $this->tour->getSuppliers($t['id']);
+            $t['images']      = $this->tour->getImages($t['id']);
+            $t['policies']    = $this->tour->getPolicies($t['id']);
         }
 
         $title = "Quản lý Tour";
-        $view = "admin/list-tour";
+        $view  = "admin/list-tour";
         require_once PATH_VIEW . 'main.php';
     }
 
     // Thêm tour mới
     public function create()
     {
-        $tour = new Tour();
-        $category = new Category();
-        $categories = $category->getList();
+        $categories = $this->category->getList();
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // 1. Thêm tour cơ bản
-            $tour_id = $tour->insert($_POST);
+            $tour_id = $this->tour->insert($_POST);
 
-            // 2. Lịch trình
-            if(isset($_POST['itinerary'])) {
-                foreach($_POST['itinerary'] as $day => $activity) {
-                    if($activity != '') {
-                        $tour->addItinerary($tour_id, $day, $activity);
-                    }
-                }
-            }
-
-            // 3. Nhà cung cấp
-            if(isset($_POST['supplier_name'])) {
-                foreach($_POST['supplier_name'] as $i => $name) {
-                    if($name != '') {
-                        $tour->addSupplier($tour_id, $name, $_POST['supplier_type'][$i], $_POST['supplier_contact'][$i]);
-                    }
-                }
-            }
-
-            // 4. Chính sách
-            if(isset($_POST['policy_type'])) {
-                foreach($_POST['policy_type'] as $i => $type) {
-                    if($_POST['policy_desc'][$i] != '') {
-                        $tour->addPolicy($tour_id, $type, $_POST['policy_desc'][$i]);
-                    }
-                }
-            }
-
-            // 5. Hình ảnh
-            if (!empty($_FILES['images']['name'][0])) {
-                foreach ($_FILES['images']['tmp_name'] as $i => $tmp_name) {
-                    $filename = 'uploads/' . time() . '_' . $_FILES['images']['name'][$i];
-                    move_uploaded_file($tmp_name, $filename);
-                    $tour->addImage($tour_id, $filename);
-                }
-            }
+            $this->handleItineraries($tour_id, $_POST);
+            $this->handleSuppliers($tour_id, $_POST);
+            $this->handlePolicies($tour_id, $_POST);
+            $this->handleImages($tour_id, $_FILES);
 
             header("Location:" . BASE_URL . "?action=admin-list-tour");
         } else {
             $title = "Thêm Tour mới";
-            $view = "admin/create-tour";
+            $view  = "admin/create-tour";
             require_once PATH_VIEW . 'main.php';
         }
     }
@@ -82,53 +55,28 @@ class TourController
         $id = $_GET['id'] ?? null;
         if (!$id) die("Không có ID tour");
 
-        $tour = new Tour();
-        $category = new Category();
-        $categories = $category->getList();
+        $categories = $this->category->getList();
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $tour->update($id, $_POST);
+            $this->tour->update($id, $_POST);
 
-            // Xóa các bảng phụ cũ
-            foreach($tour->getItineraries($id) as $item) $tour->deleteItinerary($item['id']);
-            foreach($tour->getSuppliers($id) as $item) $tour->deleteSupplier($item['id']);
-            foreach($tour->getPolicies($id) as $item) $tour->deletePolicy($item['id']);
-            foreach($tour->getImages($id) as $item) $tour->deleteImage($item['id']);
+            $this->deleteSubTables($id);
 
-            // Thêm lại các bảng phụ từ form
-            if(isset($_POST['itinerary'])) {
-                foreach($_POST['itinerary'] as $day => $activity) {
-                    if($activity != '') $tour->addItinerary($id, $day, $activity);
-                }
-            }
-            if(isset($_POST['supplier_name'])) {
-                foreach($_POST['supplier_name'] as $i => $name) {
-                    if($name != '') $tour->addSupplier($id, $name, $_POST['supplier_type'][$i], $_POST['supplier_contact'][$i]);
-                }
-            }
-            if(isset($_POST['policy_type'])) {
-                foreach($_POST['policy_type'] as $i => $type) {
-                    if($_POST['policy_desc'][$i] != '') $tour->addPolicy($id, $type, $_POST['policy_desc'][$i]);
-                }
-            }
-            if (!empty($_FILES['images']['name'][0])) {
-                foreach ($_FILES['images']['tmp_name'] as $i => $tmp_name) {
-                    $filename = 'uploads/' . time() . '_' . $_FILES['images']['name'][$i];
-                    move_uploaded_file($tmp_name, $filename);
-                    $tour->addImage($id, $filename);
-                }
-            }
+            $this->handleItineraries($id, $_POST);
+            $this->handleSuppliers($id, $_POST);
+            $this->handlePolicies($id, $_POST);
+            $this->handleImages($id, $_FILES);
 
             header("Location:" . BASE_URL . "?action=admin-list-tour");
         } else {
-            $data = $tour->getById($id);
-            $data['itineraries'] = $tour->getItineraries($id);
-            $data['suppliers'] = $tour->getSuppliers($id);
-            $data['images'] = $tour->getImages($id);
-            $data['policies'] = $tour->getPolicies($id);
+            $data = $this->tour->getById($id);
+            $data['itineraries'] = $this->tour->getItineraries($id);
+            $data['suppliers']   = $this->tour->getSuppliers($id);
+            $data['images']      = $this->tour->getImages($id);
+            $data['policies']    = $this->tour->getPolicies($id);
 
             $title = "Sửa Tour";
-            $view = "admin/update-tour";
+            $view  = "admin/update-tour";
             require_once PATH_VIEW . 'main.php';
         }
     }
@@ -138,17 +86,111 @@ class TourController
     {
         $id = $_GET['id'] ?? null;
         if ($id) {
-            $tour = new Tour();
-
-            // Xóa cascade các bảng phụ
-            foreach($tour->getItineraries($id) as $item) $tour->deleteItinerary($item['id']);
-            foreach($tour->getSuppliers($id) as $item) $tour->deleteSupplier($item['id']);
-            foreach($tour->getPolicies($id) as $item) $tour->deletePolicy($item['id']);
-            foreach($tour->getImages($id) as $item) $tour->deleteImage($item['id']);
-
-            // Xóa tour cơ bản
-            $tour->delete($id);
+            $this->deleteSubTables($id);
+            $this->tour->delete($id);
         }
         header("Location:" . BASE_URL . "?action=admin-list-tour");
+    }
+
+    // Xử lý lịch trình
+    private function handleItineraries($tour_id, $data)
+    {
+        if (!empty($data['itinerary'])) {
+            foreach ($data['itinerary'] as $day => $activity) {
+                if (trim($activity) !== '') {
+                    $this->tour->addItinerary($tour_id, $day, $activity);
+                }
+            }
+        }
+    }
+
+    // Xử lý nhà cung cấp
+    private function handleSuppliers($tour_id, $data)
+    {
+        if (!empty($data['supplier_name'])) {
+            foreach ($data['supplier_name'] as $i => $name) {
+                if (trim($name) !== '') {
+                    $this->tour->addSupplier(
+                        $tour_id,
+                        $name,
+                        $data['supplier_type'][$i] ?? '',
+                        $data['supplier_contact'][$i] ?? ''
+                    );
+                }
+            }
+        }
+    }
+
+    // Xử lý chính sách
+    private function handlePolicies($tour_id, $data)
+    {
+        if (!empty($data['policy_type'])) {
+            foreach ($data['policy_type'] as $i => $type) {
+                $desc = $data['policy_desc'][$i] ?? '';
+                if (trim($desc) !== '') {
+                    $this->tour->addPolicy($tour_id, $type, $desc);
+                }
+            }
+        }
+    }
+
+    // Xử lý hình ảnh
+    private function handleImages($tour_id, $files)
+    {
+        $uploadDir = __DIR__ . '/../assets/uploads/';
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0777, true);
+        }
+
+        if (!empty($files['images']['name'][0])) {
+            foreach ($files['images']['tmp_name'] as $i => $tmp_name) {
+                $originalName = basename($files['images']['name'][$i]);
+                $filename     = time() . '_' . $originalName;
+                $targetPath   = $uploadDir . $filename;
+
+                if (move_uploaded_file($tmp_name, $targetPath)) {
+                    $this->tour->addImage($tour_id, 'assets/uploads/' . $filename);
+                } else {
+                    error_log("Upload failed for file: $originalName");
+                }
+            }
+        }
+    }
+
+    // Xóa dữ liệu phụ
+    private function deleteSubTables($tour_id)
+    {
+        foreach ($this->tour->getItineraries($tour_id) as $item) {
+            $this->tour->deleteItinerary($item['id']);
+        }
+        foreach ($this->tour->getSuppliers($tour_id) as $item) {
+            $this->tour->deleteSupplier($item['id']);
+        }
+        foreach ($this->tour->getPolicies($tour_id) as $item) {
+            $this->tour->deletePolicy($item['id']);
+        }
+        foreach ($this->tour->getImages($tour_id) as $item) {
+            $this->tour->deleteImage($item['id']);
+        }
+    }
+    public function detail()
+    {
+        $id = $_GET['id'] ?? null;
+        if (!$id) die("Không có ID tour");
+
+        $tour = new Tour();
+        $data = $tour->getById($id);
+
+        if (!$data) die("Tour không tồn tại");
+
+        // Lấy dữ liệu phụ
+        $data['itineraries'] = $tour->getItineraries($id);
+        $data['suppliers']   = $tour->getSuppliers($id);
+        $data['images']      = $tour->getImages($id);
+        $data['policies']    = $tour->getPolicies($id);
+
+        $title = "Chi tiết Tour";
+        $view  = "admin/detail-tour";
+        require_once PATH_VIEW . 'main.php';
     }
 }
