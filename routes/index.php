@@ -6,7 +6,7 @@ match ($action) {
     '/' => (new HomeController)->index(),
 
     // Dashboard admin
-    'admin-dashboard' => (new DashboardController)->index(),
+    'admin-sidebar' => (new DashboardController)->index(),
 
     // ==================== Category ====================
     'admin-list-categories'   => (new CategoryController)->index(), // Danh mục chính
