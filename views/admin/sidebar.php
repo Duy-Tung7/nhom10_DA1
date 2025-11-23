@@ -7,7 +7,7 @@ $categories = $categoryModel->getList();
     <a href="<?= BASE_URL ?>?action=admin-dashboard" class="list-group-item list-group-item-action">Dashboard</a>
 
     <a class="list-group-item list-group-item-action" data-bs-toggle="collapse" href="#categorySubmenu" role="button" aria-expanded="false" aria-controls="categorySubmenu">
-        Quản lý danh mục
+       Quản lý tour
     </a>
 
     <div class="collapse list-group-flush" id="categorySubmenu">
