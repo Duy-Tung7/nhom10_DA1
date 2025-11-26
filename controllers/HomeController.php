@@ -3,10 +3,12 @@ require_once __DIR__ . '/../models/BaseModel.php';
 
 class HomeController
 {
-    protected $baseModel;
+    protected $userModel;
+
     public function __construct()
     {
-        $this->baseModel = new BaseModel();
+        $this->userModel = new User();  // dùng model User, KHÔNG dùng BaseModel
+      
     }
 
     public function index()
@@ -14,36 +16,42 @@ class HomeController
         include __DIR__ . '/../views/home.php';
     }
 
- 
-
     public function login()
     {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $name     = $_POST['name'] ?? '';
-            $email    = $_POST['email'] ?? '';
-            $password = $_POST['password'] ?? '';
-
-            $user = $this->baseModel->checkLogin( $email, $password);
-
-            if ($user) {
-                $_SESSION['user'] = $user;
-                header("Location: index.php?action=home");
-                exit;
+        $method = $_SERVER['REQUEST_METHOD'];
+        if ($method == 'POST') {
+            $user = new User();
+            $check = $user->checkLogin($_POST['email'], $_POST['password']);
+            if ($check) {
+                $_SESSION['success'][] = "Đăng nhập thành công";
+                // Thông tin user đã đăng nhập
+                $_SESSION['userLogin'] = [
+                    'id' => $check['id'],
+                    'name' => $check['name'],
+                    'role' => $check['role'],
+                ];
+                if ($check['role'] == 1) {
+                    header("Location:" . BASE_URL . "?action=admin-sidebar");
+                    exit();
+                }
+                header("Location:" . BASE_URL);
+                exit();
             } else {
-                $error = "Email hoặc mật khẩu sai!";
-                include __DIR__ . '/../views/login.php';
+                $_SESSION['error'][] = "Đăng nhập thất bại";
+                header("Location:" . BASE_URL . "?action=login");
+                exit();
             }
-        } else {
-            include __DIR__ . '/../views/login.php';
         }
+        $title = "Trang đăng nhập";
+        $view = "login";
+        require_once PATH_VIEW . 'main.php';
     }
 
     public function logout()
-{
-    session_unset();
-    session_destroy();
-    header("Location: index.php?action=login");
-    exit;
-}
-
+    {
+        session_unset();
+        session_destroy();
+        header("Location: index.php?action=login");
+        exit;
+    }
 }
