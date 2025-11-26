@@ -20,7 +20,11 @@ define('DB_HOST',     'localhost');
 define('DB_PORT',     '3306');
 define('DB_USERNAME', 'root');
 define('DB_PASSWORD', '');
+<<<<<<< HEAD
 define('DB_NAME',     'da1_nhom10');
+=======
+define('DB_NAME',     'da1_f25');
+>>>>>>> main
 
 
 define('DB_OPTIONS', [
