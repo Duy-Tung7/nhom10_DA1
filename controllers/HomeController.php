@@ -32,10 +32,8 @@ class HomeController
                 ];
                 if ($check['role'] == 1) {
                     header("Location:" . BASE_URL . "?action=admin-sidebar");
-                    exit();
                 }
                 header("Location:" . BASE_URL);
-                exit();
             } else {
                 $_SESSION['error'][] = "Đăng nhập thất bại";
                 header("Location:" . BASE_URL . "?action=login");

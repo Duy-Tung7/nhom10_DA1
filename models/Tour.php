@@ -26,38 +26,49 @@ class Tour
 
     public function insert($data)
     {
+        // Thêm guide_id vào câu SQL
         $stmt = $this->pdo->prepare("
-            INSERT INTO tours (category_id, name, base_price, duration, description, start_date, end_date, created_at, updated_at)
-            VALUES (:category_id, :name, :base_price, :duration, :description, :start_date, :end_date, NOW(), NOW())
+            INSERT INTO tours (category_id, guide_id, name, base_price, duration, description, start_date, end_date, created_at, updated_at)
+            VALUES (:category_id, :guide_id, :name, :base_price, :duration, :description, :start_date, :end_date, NOW(), NOW())
         ");
         $stmt->execute([
             ':category_id' => $data['category_id'],
-            ':name' => $data['name'],
-            ':base_price' => $data['base_price'],
-            ':duration' => $data['duration'],
+            ':guide_id'    => $data['guide_id'] ?? null, // Nếu không chọn guide thì để null
+            ':name'        => $data['name'],
+            ':base_price'  => $data['base_price'],
+            ':duration'    => $data['duration'],
             ':description' => $data['description'],
-            ':start_date' => $data['start_date'],
-            ':end_date' => $data['end_date']
+            ':start_date'  => $data['start_date'],
+            ':end_date'    => $data['end_date']
         ]);
         return $this->pdo->lastInsertId();
     }
 
-    public function update($id, $data)
+public function update($id, $data)
     {
         $stmt = $this->pdo->prepare("
-            UPDATE tours SET category_id=:category_id, name=:name, base_price=:base_price, duration=:duration,
-            description=:description, start_date=:start_date, end_date=:end_date, updated_at=NOW()
+            UPDATE tours 
+            SET category_id=:category_id, 
+                guide_id=:guide_id, 
+                name=:name, 
+                base_price=:base_price, 
+                duration=:duration,
+                description=:description, 
+                start_date=:start_date, 
+                end_date=:end_date, 
+                updated_at=NOW()
             WHERE id=:id
         ");
         $stmt->execute([
             ':category_id' => $data['category_id'],
-            ':name' => $data['name'],
-            ':base_price' => $data['base_price'],
-            ':duration' => $data['duration'],
+            ':guide_id'    => $data['guide_id'] ?? null,
+            ':name'        => $data['name'],
+            ':base_price'  => $data['base_price'],
+            ':duration'    => $data['duration'],
             ':description' => $data['description'],
-            ':start_date' => $data['start_date'],
-            ':end_date' => $data['end_date'],
-            ':id' => $id
+            ':start_date'  => $data['start_date'],
+            ':end_date'    => $data['end_date'],
+            ':id'          => $id
         ]);
     }
 
@@ -68,6 +79,14 @@ class Tour
     }
 
     // -------------------- Lịch trình --------------------
+    // Lấy danh sách tour được phân công cho một guide cụ thể
+    public function getToursByGuide($guide_id)
+    {
+        // Chọn các tour có guide_id trùng với id truyền vào
+        $stmt = $this->pdo->prepare("SELECT * FROM tours WHERE guide_id = :guide_id ORDER BY start_date DESC");
+        $stmt->execute([':guide_id' => $guide_id]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
     public function getItineraries($tour_id)
     {
         $stmt = $this->pdo->prepare("SELECT * FROM tour_itineraries WHERE tour_id=:tour_id ORDER BY day_number");
