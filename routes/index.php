@@ -1,27 +1,33 @@
-<?php 
-session_start();
+<?php
 
-// 1. Định nghĩa đường dẫn gốc của dự án
-define('PATH_ROOT', __DIR__ . '/');
+$action = $_GET['action'] ?? '/';
 
-// 2. Gọi file cấu hình ĐẦU TIÊN để lấy các hằng số (PATH_MODEL, DB_HOST...)
-require_once PATH_ROOT . 'configs/env.php';
-require_once PATH_ROOT . 'configs/helper.php';
+match ($action) {
+    '/' => (new HomeController)->index(),
 
-// 3. Khởi tạo Autoload (Tự động nạp file Model và Controller)
-spl_autoload_register(function ($class) {
-    // Dòng này là dòng số 8 gây lỗi cũ của bạn
-    // Bây giờ PATH_MODEL đã được load từ bước 2 nên sẽ không lỗi nữa
-    $modelFile = PATH_MODEL . $class . '.php';
-    $controllerFile = PATH_CONTROLLER . $class . '.php';
+    // Dashboard admin
+    'admin-sidebar' => (new DashboardController)->index(),
 
-    if (file_exists($modelFile)) {
-        require_once $modelFile;
-    } elseif (file_exists($controllerFile)) {
-        require_once $controllerFile;
-    }
-});
+    // ==================== Category ====================
+    'admin-list-categories'   => (new CategoryController)->index(), // Danh mục chính
+    'admin-list-category'     => (new CategoryController)->index(), // Danh mục con → show tour
+    'admin-create-categories' => (new CategoryController)->create(),
+    'admin-update-categories' => (new CategoryController)->update(),
+    'admin-delete-categories' => (new CategoryController)->delete(),
 
-// 4. Điều hướng (Router)
-require_once PATH_ROOT . 'routes/index.php';
-?>
+    // ==================== Tour ====================
+    'admin-list-tour'   => (new TourController)->index(),
+    'admin-create-tour' => (new TourController)->create(),
+    'admin-update-tour' => (new TourController)->update(),
+    'admin-delete-tour' => (new TourController)->delete(),
+    'admin-tour-detail'  => (new TourController)->detail(),
+
+    // ==================== User ====================
+    'home'      => (new HomeController)->index(),
+    'login'     => (new HomeController)->login(),
+    'logout'    => (new HomeController)->logout(),
+
+
+
+    default => (new HomeController)->index(),
+};
