@@ -2,6 +2,7 @@
 
 $action = $_GET['action'] ?? '/';
 
+
 match ($action) {
     '/' => (new HomeController)->index(),
 
@@ -24,6 +25,10 @@ match ($action) {
     'home'      => (new HomeController)->index(),
     'login'     => (new HomeController)->login(),
     'logout'    => (new HomeController)->logout(),
+    // ==================== Booking ====================
+    'booking-list'     => (new BookingController)->index(),    
+    'booking-create'   => (new BookingController)->create(),   
+    'booking-store' =>(new BookingController())->store(),
 
     default => (new HomeController)->index(),
 };
