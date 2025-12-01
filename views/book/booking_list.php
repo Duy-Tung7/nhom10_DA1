@@ -108,25 +108,29 @@ foreach ($labels as $type => $label):
                     <th>Ngày kết thúc</th>
                     <th>HDV</th>
                     <th>Ngày tạo</th>
+                    <th>Ghi chú</th>
                 </tr>
             </thead>
             <tbody>
-            <?php foreach ($bookingsByType[$type] as $b): ?>
-                <tr>
-                    <td><?= htmlspecialchars($b['tour_name']) ?></td>
-                    <td><?= htmlspecialchars($b['contact_name']) ?></td>
-                    <td><?= htmlspecialchars($b['phone']) ?></td>
-                    <td><?= htmlspecialchars($b['email']) ?></td>
-                    <td><?= (int)$b['num_people'] ?></td>
-                    <td><?= number_format($b['total_price'], 0, ',', '.') ?></td>
-                    <td><?= $b['start_date'] ?></td>
-                    <td><?= $b['end_date'] ?></td>
-                    <td><?= $b['finish_date'] ?></td>
-                    <td><?= htmlspecialchars($b['guide_name']) ?></td>
-                    <td><?= $b['created_at'] ?></td>
-                </tr>
-            <?php endforeach; ?>
-            </tbody>
+<?php foreach ($bookingsByType[$type] as $b): ?>
+    <tr>
+        <td><?= htmlspecialchars($b['tour_name'] ?? '') ?></td>
+<td><?= htmlspecialchars($b['contact_name'] ?? '') ?></td>
+<td><?= htmlspecialchars($b['phone'] ?? '') ?></td>
+<td><?= htmlspecialchars($b['email'] ?? '') ?></td>
+<td><?= (int)($b['num_people'] ?? 0) ?></td>
+<td><?= number_format($b['total_price'] ?? 0, 0, ',', '.') ?></td>
+<td><?= $b['start_date'] ?? '' ?></td>
+<td><?= $b['end_date'] ?? '' ?></td>
+<td><?= $b['finish_date'] ?? '' ?></td>
+<td><?= htmlspecialchars($b['guide_name'] ?? '') ?></td>
+<td><?= $b['created_at'] ?? '' ?></td>
+<td><?= htmlspecialchars($b['note'] ?? '') ?></td>
+
+    </tr>
+<?php endforeach; ?>
+</tbody>
+
         </table>
 
         <?php else: ?>

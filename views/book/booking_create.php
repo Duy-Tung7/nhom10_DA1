@@ -18,7 +18,7 @@
     </select>
     <br><br>
 
-    <label>Họ tên:</label>
+    <label>Tên khách hàng:</label>
     <input type="text" name="contact_name" required>
     <br><br>
 
@@ -38,20 +38,31 @@
     <input type="number" name="total_price" required step="0.01">
     <br><br>
 
-    <label>Ngày bắt đầu:</label>
+    <label>Ngày đi:</label>
     <input type="date" name="start_date" required>
     <br><br>
 
-    <label>Ngày kết thúc:</label>
+    <label>Ngày đến:</label>
     <input type="date" name="end_date" required>
     <br><br>
 
-    <label>Ngày hoàn thành:</label>
+    <label>Ngày kết thúc:</label>
     <input type="date" name="finish_date">
     <br><br>
 
-    <label>Tên hướng dẫn viên:</label>
-    <input type="text" name="guide_name">
+    <!-- ĐÃ SỬA Ở ĐÂY -->
+    <select name="guide_name">
+        <option value="">-- Chọn hướng dẫn viên --</option>
+        <?php foreach ($guides as $guide): ?>
+            <option value="<?= htmlspecialchars($guide['name']) ?>">
+                <?= htmlspecialchars($guide['name']) ?>
+            </option>
+        <?php endforeach; ?>
+    </select>
+    <br><br>
+
+    <label>Ghi chú:</label>
+    <input type="text" name="note">
     <br><br>
 
     <button type="submit">Lưu Booking</button>
