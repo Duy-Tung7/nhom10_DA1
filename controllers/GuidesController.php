@@ -1,32 +1,62 @@
 <?php
-// File: controllers/GuideController.php
-include_once 'models/db_connect.php'; // Giả sử bạn có file kết nối DB chung
+require_once 'models/Guide.php';
 
-class GuideController {
+class GuidesController {
+    private $guideModel;
+
+    public function __construct() {
+        $this->guideModel = new Guide();
+    }
+
+    // Hiển thị danh sách
     public function index() {
-        global $conn; // Sử dụng biến kết nối $conn từ file config
+        $keyword = $_GET['keyword'] ?? '';
+        $page = $_GET['page'] ?? 1;
         
-        // 1. Lấy dữ liệu từ bảng guides
-        $sql = "SELECT * FROM guides";
-        $result = $conn->query($sql);
+        $guides = $this->guideModel->getAllGuides($keyword, $page);
         
-        $guides = []; // Mảng chứa danh sách
-        if ($result->num_rows > 0) {
-            while($row = $result->fetch_assoc()) {
-                $guides[] = $row;
-            }
-        }
-
-        // 2. Gọi View để hiển thị (Lưu ý đường dẫn thư mục view của bạn)
-        // Đường dẫn dựa trên hình ảnh: views/admin/quanly&dieuhanh...
-        include 'views/admin/quanly&dieuhanh/list-tourguide.php';
+        // Gọi view hiển thị
+        include 'views/admin/guide/list.php'; 
     }
 
+    // Hiển thị form thêm mới
     public function create() {
-        // Logic hiển thị form thêm mới
-        // include 'views/admin/quanly&dieuhanh/create-guide.php';
+        include 'views/admin/guide/create.php';
     }
-    
-    // Bạn có thể thêm các hàm store(), edit(), update(), delete() tại đây
+
+    // Xử lý lưu dữ liệu thêm mới
+    public function store() {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            // Xử lý upload ảnh
+            $image = '';
+            if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
+                $target_dir = "assets/uploads/";
+                $image = $target_dir . time() . "_" . basename($_FILES["image"]["name"]);
+                move_uploaded_file($_FILES["image"]["tmp_name"], $image);
+            }
+
+            $data = [
+                'name' => $_POST['name'],
+                'dob' => $_POST['dob'],
+                'image' => $image,
+                'phone' => $_POST['phone'],
+                'email' => $_POST['email'],
+                'bio' => $_POST['bio'],
+                'certificates' => $_POST['certificates'],
+                'languages' => $_POST['languages'],
+                'type' => $_POST['type'],
+                'health_status' => $_POST['health_status']
+            ];
+
+            $this->guideModel->insert($data);
+            header("Location: index.php?url=guides"); // Chuyển hướng về trang danh sách
+        }
+    }
+
+    // Xóa HDV
+    public function delete() {
+        $id = $_GET['id'];
+        $this->guideModel->delete($id);
+        header("Location: index.php?url=guides");
+    }
 }
-?>
