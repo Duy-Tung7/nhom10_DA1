@@ -6,8 +6,8 @@ match ($action) {
     '/' => (new HomeController)->index(),
 
     // Dashboard admin
-    'admin-dashboard' => (new DashboardController)->index(),
-
+    'admin-sidebar' => (new DashboardController)->index(),
+    'guide-sidebar' => (new DashboardController)->index(),
     // ==================== Category ====================
     'admin-list-categories'   => (new CategoryController)->index(), // Danh mục chính
     'admin-list-category'     => (new CategoryController)->index(), // Danh mục con → show tour
@@ -20,10 +20,14 @@ match ($action) {
     'admin-create-tour' => (new TourController)->create(),
     'admin-update-tour' => (new TourController)->update(),
     'admin-delete-tour' => (new TourController)->delete(),
+    'admin-tour-detail'  => (new TourController)->detail(),
+
     // ==================== User ====================
     'home'      => (new HomeController)->index(),
     'login'     => (new HomeController)->login(),
     'logout'    => (new HomeController)->logout(),
+
+
 
     default => (new HomeController)->index(),
 };

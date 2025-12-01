@@ -1,5 +1,5 @@
 <div class="container">
-    <h2>Thêm Tour mới</h2>
+   
     <form action="" method="POST" enctype="multipart/form-data">
         <div class="mb-3">
             <label>Tên Tour</label>
@@ -22,7 +22,7 @@
 
         <div class="mb-3">
             <label>Thời lượng (ngày)</label>
-            <input type="number" name="duration" class="form-control" required>
+            <input type="text" name="duration" class="form-control" required>
         </div>
 
         <div class="mb-3">
