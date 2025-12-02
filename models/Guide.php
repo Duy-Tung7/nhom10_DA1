@@ -2,62 +2,69 @@
 require_once 'BaseModel.php';
 
 class Guide extends BaseModel {
+    
+    // Chỉ nhận đúng 2 tham số: Từ khóa và Trang
+    public function getAllGuides($keyword = '', $page = 1) {
+        $limit = 5; // Số dòng trên 1 trang
+        
+        // 1. Ép kiểu số (Chống lỗi string - int)
+        $page = (int)$page; 
+        if ($page < 1) $page = 1;
 
-    // Lấy tất cả HDV (có tìm kiếm và phân trang)
-    public function getAllGuides($keyword = '', $page = 1, $limit = 10) {
+        // 2. Tính toán offset
         $offset = ($page - 1) * $limit;
-        $sql = "SELECT * FROM guides WHERE 1=1";
 
+        // 3. Viết câu SQL
+        $sql = "SELECT * FROM guides WHERE 1=1";
+        
+        // Tìm kiếm
         if (!empty($keyword)) {
             $sql .= " AND (name LIKE '%$keyword%' OR phone LIKE '%$keyword%' OR email LIKE '%$keyword%')";
         }
 
         $sql .= " ORDER BY id DESC LIMIT $offset, $limit";
-        return $this->query($sql);
+        
+        return $this->query($sql); 
     }
 
-    // Đếm tổng số bản ghi (để phân trang)
     public function countTotalGuides($keyword = '') {
         $sql = "SELECT COUNT(*) as total FROM guides WHERE 1=1";
         if (!empty($keyword)) {
-            $sql .= " AND (name LIKE '%$keyword%' OR phone LIKE '%$keyword%')";
+            $sql .= " AND (name LIKE '%$keyword%' OR phone LIKE '%$keyword%' OR email LIKE '%$keyword%')";
         }
         $result = $this->queryOne($sql);
-        return $result['total'];
+        return $result ? $result['total'] : 0;
     }
 
-    // Lấy chi tiết 1 HDV theo ID
-    public function getGuideById($id) {
-        $sql = "SELECT * FROM guides WHERE id = $id";
-        return $this->queryOne($sql);
+    public function deleteGuide($id) {
+        $sql = "DELETE FROM guides WHERE id = $id";
+        return $this->execute($sql);
     }
+    // --- THÊM CÁC HÀM NÀY VÀO DƯỚI CÙNG CLASS Guide ---
 
-    // Thêm mới HDV
-    public function insert($data) {
-        $sql = "INSERT INTO guides (name, dob, image, phone, email, bio, certificates, languages, type, health_status) 
-                VALUES (:name, :dob, :image, :phone, :email, :bio, :certificates, :languages, :type, :health_status)";
+    // 1. Thêm mới
+    public function insertGuide($data) {
+        $sql = "INSERT INTO guides (name, dob, phone, email, type, languages, certificate, experience, rating, health_status, image) 
+                VALUES (:name, :dob, :phone, :email, :type, :languages, :certificate, :experience, :rating, :health_status, :image)";
         
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute($data);
+        $stmt = $this->conn->prepare($sql);
+        return $stmt->execute($data);
     }
 
-    // Cập nhật HDV
-    public function update($id, $data) {
+    // 2. Cập nhật
+    public function updateGuide($id, $data) {
+        // Biến $data cần chứa cả :id
+        $data['id'] = $id; 
+
         $sql = "UPDATE guides SET 
-                name = :name, dob = :dob, image = :image, phone = :phone, email = :email, 
-                bio = :bio, certificates = :certificates, languages = :languages, 
-                type = :type, health_status = :health_status
+                name = :name, dob = :dob, phone = :phone, email = :email, 
+                type = :type, languages = :languages, certificate = :certificate, 
+                experience = :experience, rating = :rating, health_status = :health_status, 
+                image = :image 
                 WHERE id = :id";
         
-        $data['id'] = $id; // Thêm ID vào mảng dữ liệu để bind param
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute($data);
-    }
-
-    // Xóa HDV
-    public function delete($id) {
-        $sql = "DELETE FROM guides WHERE id = $id";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute();
+        $stmt = $this->conn->prepare($sql);
+        return $stmt->execute($data);
     }
 }
+?>

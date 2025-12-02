@@ -1,22 +1,17 @@
-<?php
-$categoryModel = new Category();
-$categories = $categoryModel->getList();
-?>
-
 <div class="list-group">
-    <a href="<?= BASE_URL ?>?action=admin-dashboard" class="list-group-item list-group-item-action">Dashboard</a>
-
-    <a class="list-group-item list-group-item-action" data-bs-toggle="collapse" href="#categorySubmenu" role="button" aria-expanded="false" aria-controls="categorySubmenu">
-       Quản lý tour
+    <a href="index.php?action=admin-dashboard" class="list-group-item list-group-item-action">
+        <i class="fas fa-tachometer-alt"></i> Dashboard
     </a>
 
-    <div class="collapse list-group-flush" id="categorySubmenu">
-        <?php foreach ($categories as $cat): ?>
-            <a href="<?= BASE_URL ?>?action=admin-list-category&id=<?= $cat['id'] ?>" class="list-group-item list-group-item-action ps-4">
-                <?= htmlspecialchars($cat['name']) ?>
-            </a>
-        <?php endforeach; ?>
-    </div>
-    
-    <a href="<?= BASE_URL ?>?action=admin-list-tour" class="list-group-item list-group-item-action">Quản lý tour</a>
+    <a href="index.php?action=admin-list-categories" class="list-group-item list-group-item-action">
+        <i class="fas fa-list"></i> Quản lý Danh mục
+    </a>
+
+    <a href="index.php?action=admin-list-tour" class="list-group-item list-group-item-action">
+        <i class="fas fa-plane"></i> Quản lý Tour
+    </a>
+
+    <a href="index.php?action=admin-list-guides" class="list-group-item list-group-item-action">
+        <i class="fas fa-id-card-alt"></i> Quản lý HDV
+    </a>
 </div>
