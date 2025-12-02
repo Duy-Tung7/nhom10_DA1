@@ -23,7 +23,7 @@ class TourController
             $t['policies']    = $this->tour->getPolicies($t['id']);
         }
 
-        $title = "Quản lý Tour";
+        $title = "Danh sách tất cả các tour";
         $view  = "admin/list-tour";
         require_once PATH_VIEW . 'main.php';
     }

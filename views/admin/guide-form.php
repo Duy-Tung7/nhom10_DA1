@@ -1,88 +1,70 @@
-<div class="container-fluid mt-4">
+<div class="container-fluid py-4">
     <div class="card shadow">
         <div class="card-header bg-primary text-white">
-            <h5 class="mb-0">
-                <?= isset($guide) ? 'CẬP NHẬT THÔNG TIN' : 'THÊM HƯỚNG DẪN VIÊN MỚI' ?>
-            </h5>
+            <h5 class="m-0"><?= isset($guide['id']) ? 'Cập nhật HDV' : 'Thêm mới HDV' ?></h5>
         </div>
         <div class="card-body">
-            <form action="" method="POST" enctype="multipart/form-data">
-                
+            <form action="index.php?action=admin-store-guide" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="id" value="<?= $guide['id'] ?? '' ?>">
+                <input type="hidden" name="current_avatar" value="<?= $guide['avatar'] ?? '' ?>">
+
                 <div class="row">
-                    <div class="col-md-4 text-center">
+                    <div class="col-md-6 border-end">
+                        <h6 class="text-primary mb-3">Thông tin cơ bản</h6>
+                        
                         <div class="mb-3">
-                            <label>Ảnh đại diện</label> <br>
-                            <?php if(isset($guide) && $guide['image']): ?>
-                                <img src="uploads/<?= $guide['image'] ?>" class="img-thumbnail mb-2" width="150"><br>
-                                <input type="hidden" name="current_image" value="<?= $guide['image'] ?>">
+                            <label>User ID (*)</label>
+                            <input type="number" name="user_id" class="form-control" placeholder="Nhập ID tài khoản User" value="<?= $guide['user_id'] ?? '' ?>" required>
+                            <small class="text-muted">Nhập ID của tài khoản User tương ứng</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Số điện thoại</label>
+                            <input type="text" name="phone" class="form-control" value="<?= $guide['phone'] ?? '' ?>">
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Ngày sinh (Birthday)</label>
+                            <input type="date" name="birthday" class="form-control" value="<?= $guide['birthday'] ?? '' ?>">
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Ảnh đại diện (Avatar)</label>
+                            <input type="file" name="avatar" class="form-control">
+                            <?php if(!empty($guide['avatar'])): ?>
+                                <img src="assets/uploads/<?= $guide['avatar'] ?>" class="mt-2 rounded" width="80">
                             <?php endif; ?>
-                            <input type="file" name="image" class="form-control">
                         </div>
                     </div>
 
-                    <div class="col-md-8">
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label>Họ tên:</label>
-                                <input type="text" name="name" class="form-control" value="<?= $guide['name'] ?? '' ?>" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label>Ngày sinh:</label>
-                                <input type="date" name="dob" class="form-control" value="<?= $guide['dob'] ?? '' ?>">
-                            </div>
-                        </div>
+                    <div class="col-md-6">
+                        <h6 class="text-primary mb-3">Hồ sơ chi tiết</h6>
 
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label>Số điện thoại:</label>
-                                <input type="text" name="phone" class="form-control" value="<?= $guide['phone'] ?? '' ?>">
-                            </div>
-                            <div class="col-md-6">
-                                <label>Email:</label>
-                                <input type="email" name="email" class="form-control" value="<?= $guide['email'] ?? '' ?>">
-                            </div>
-                        </div>
-                        
                         <div class="mb-3">
-                            <label>Loại HDV:</label>
-                            <select name="type" class="form-select">
-                                <option value="Nội địa" <?= (isset($guide) && $guide['type']=='Nội địa') ? 'selected' : '' ?>>Nội địa</option>
-                                <option value="Quốc tế" <?= (isset($guide) && $guide['type']=='Quốc tế') ? 'selected' : '' ?>>Quốc tế</option>
-                            </select>
+                            <label>Ngôn ngữ (Languages)</label>
+                            <input type="text" name="languages" class="form-control" placeholder="Anh, Pháp, Nhật..." value="<?= $guide['languages'] ?? '' ?>">
                         </div>
-                        
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label>Ngôn ngữ:</label>
-                                <input type="text" name="languages" class="form-control" value="<?= $guide['languages'] ?? '' ?>">
-                            </div>
-                            <div class="col-md-6">
-                                <label>Kinh nghiệm (năm):</label>
-                                <input type="number" name="experience" class="form-control" value="<?= $guide['experience'] ?? '' ?>">
-                            </div>
-                        </div>
-                        
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label>Chứng chỉ:</label>
-                                <input type="text" name="certificate" class="form-control" value="<?= $guide['certificate'] ?? '' ?>">
-                            </div>
-                            <div class="col-md-6">
-                                <label>Sức khỏe:</label>
-                                <select name="health_status" class="form-select">
-                                    <option value="Tốt">Tốt</option>
-                                    <option value="Bình thường">Bình thường</option>
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <input type="hidden" name="rating" value="<?= $guide['rating'] ?? 5 ?>">
 
-                        <button type="submit" class="btn btn-success">
-                            <i class="fas fa-save"></i> Lưu thông tin
-                        </button>
-                        <a href="index.php?action=admin-list-guides" class="btn btn-secondary">Quay lại</a>
+                        <div class="mb-3">
+                            <label>Số năm kinh nghiệm</label>
+                            <input type="number" name="experience_years" class="form-control" value="<?= $guide['experience_years'] ?? '' ?>">
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Tình trạng sức khỏe (Health Status)</label>
+                            <input type="text" name="health_status" class="form-control" value="<?= $guide['health_status'] ?? '' ?>">
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Chứng chỉ (Certifications)</label>
+                            <textarea name="certifications" class="form-control" rows="3"><?= $guide['certifications'] ?? '' ?></textarea>
+                        </div>
                     </div>
+                </div>
+
+                <div class="mt-4 text-center">
+                    <button type="submit" class="btn btn-success px-5"><i class="fas fa-save"></i> Lưu dữ liệu</button>
+                    <a href="index.php?action=admin-list-guides" class="btn btn-secondary px-3">Hủy</a>
                 </div>
             </form>
         </div>

@@ -33,6 +33,9 @@ class HomeController
                 if ($check['role'] == 1) {
                     header("Location:" . BASE_URL . "?action=admin-sidebar");
                     exit();
+                }if ($check['role'] == 2) {
+                    header("Location:" . BASE_URL . "?action=guide-sidebar");
+                    exit();
                 }
                 header("Location:" . BASE_URL);
                 exit();

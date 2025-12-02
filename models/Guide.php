@@ -2,69 +2,82 @@
 require_once 'BaseModel.php';
 
 class Guide extends BaseModel {
-    
-    // Chỉ nhận đúng 2 tham số: Từ khóa và Trang
-    public function getAllGuides($keyword = '', $page = 1) {
-        $limit = 5; // Số dòng trên 1 trang
-        
-        // 1. Ép kiểu số (Chống lỗi string - int)
-        $page = (int)$page; 
-        if ($page < 1) $page = 1;
+    protected $table = 'guides';
 
-        // 2. Tính toán offset
-        $offset = ($page - 1) * $limit;
+    // Hàm kết nối
+    public function getDb() {
+        if (isset($this->conn)) return $this->conn;
+        if (isset($this->db)) return $this->db;
+        if (isset($this->pdo)) return $this->pdo;
+        return new PDO("mysql:host=localhost;dbname=nhom10_da1;charset=utf8", "root", "");
+    }
 
-        // 3. Viết câu SQL
-        $sql = "SELECT * FROM guides WHERE 1=1";
-        
-        // Tìm kiếm
+    public function getList($keyword = '') {
+        $sql = "SELECT * FROM {$this->table} WHERE 1=1";
         if (!empty($keyword)) {
-            $sql .= " AND (name LIKE '%$keyword%' OR phone LIKE '%$keyword%' OR email LIKE '%$keyword%')";
+            $sql .= " AND (phone LIKE :kw OR languages LIKE :kw)";
+            $stmt = $this->getDb()->prepare($sql);
+            $stmt->execute(['kw' => "%$keyword%"]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
-
-        $sql .= " ORDER BY id DESC LIMIT $offset, $limit";
-        
-        return $this->query($sql); 
+        $sql .= " ORDER BY id DESC";
+        $stmt = $this->getDb()->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function countTotalGuides($keyword = '') {
-        $sql = "SELECT COUNT(*) as total FROM guides WHERE 1=1";
-        if (!empty($keyword)) {
-            $sql .= " AND (name LIKE '%$keyword%' OR phone LIKE '%$keyword%' OR email LIKE '%$keyword%')";
+    public function getGuideById($id) {
+        $sql = "SELECT * FROM {$this->table} WHERE id = :id";
+        $stmt = $this->getDb()->prepare($sql);
+        $stmt->execute(['id' => $id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    // --- HÀM SAVE ĐÃ SỬA LỖI ---
+    public function save($data) {
+        $db = $this->getDb();
+        
+        if (isset($data['id']) && !empty($data['id'])) {
+            // --- TRƯỜNG HỢP 1: CẬP NHẬT (UPDATE) ---
+            // SQL này CÓ tham số :id, nên ta giữ nguyên $data['id']
+            $sql = "UPDATE {$this->table} SET 
+                    user_id = :user_id,
+                    phone = :phone,
+                    birthday = :birthday,
+                    avatar = :avatar,
+                    languages = :languages,
+                    experience_years = :experience_years,
+                    health_status = :health_status,
+                    certifications = :certifications
+                    WHERE id = :id";
+            
+            $stmt = $db->prepare($sql);
+            return $stmt->execute($data);
+
+        } else {
+            // --- TRƯỜNG HỢP 2: THÊM MỚI (INSERT) ---
+            // SQL này KHÔNG CÓ tham số :id (vì id tự tăng)
+            $sql = "INSERT INTO {$this->table} 
+                    (user_id, phone, birthday, avatar, languages, experience_years, health_status, certifications) 
+                    VALUES 
+                    (:user_id, :phone, :birthday, :avatar, :languages, :experience_years, :health_status, :certifications)";
+            
+            // QUAN TRỌNG: Xóa 'id' khỏi mảng data trước khi chạy lệnh Insert
+            // Nếu không xóa, máy sẽ báo lỗi "Invalid parameter number" vì thừa id
+            unset($data['id']); 
+
+            $stmt = $db->prepare($sql);
+            return $stmt->execute($data);
         }
-        $result = $this->queryOne($sql);
-        return $result ? $result['total'] : 0;
     }
 
-    public function deleteGuide($id) {
-        $sql = "DELETE FROM guides WHERE id = $id";
-        return $this->execute($sql);
-    }
-    // --- THÊM CÁC HÀM NÀY VÀO DƯỚI CÙNG CLASS Guide ---
-
-    // 1. Thêm mới
-    public function insertGuide($data) {
-        $sql = "INSERT INTO guides (name, dob, phone, email, type, languages, certificate, experience, rating, health_status, image) 
-                VALUES (:name, :dob, :phone, :email, :type, :languages, :certificate, :experience, :rating, :health_status, :image)";
-        
-        $stmt = $this->conn->prepare($sql);
-        return $stmt->execute($data);
-    }
-
-    // 2. Cập nhật
-    public function updateGuide($id, $data) {
-        // Biến $data cần chứa cả :id
-        $data['id'] = $id; 
-
-        $sql = "UPDATE guides SET 
-                name = :name, dob = :dob, phone = :phone, email = :email, 
-                type = :type, languages = :languages, certificate = :certificate, 
-                experience = :experience, rating = :rating, health_status = :health_status, 
-                image = :image 
-                WHERE id = :id";
-        
-        $stmt = $this->conn->prepare($sql);
-        return $stmt->execute($data);
+    public function delete($id) {
+        try {
+            $sql = "DELETE FROM {$this->table} WHERE id = :id";
+            $stmt = $this->getDb()->prepare($sql);
+            return $stmt->execute(['id' => $id]);
+        } catch (Exception $e) {
+            return false;
+        }
     }
 }
-?>
