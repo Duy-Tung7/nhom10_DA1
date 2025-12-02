@@ -7,10 +7,10 @@ match ($action) {
 
     // ==================== Dashboard & Sidebar ====================
     'admin-sidebar' => (new DashboardController)->index(),
-    
-    // ==================== Category (Admin) ====================
-    'admin-list-categories'   => (new CategoryController)->index(), 
-    'admin-list-category'     => (new CategoryController)->index(), 
+    'guide-sidebar' => (new DashboardController)->index(),
+    // ==================== Category ====================
+    'admin-list-categories'   => (new CategoryController)->index(), // Danh mục chính
+    'admin-list-category'     => (new CategoryController)->index(), // Danh mục con → show tour
     'admin-create-categories' => (new CategoryController)->create(),
     'admin-update-categories' => (new CategoryController)->update(),
     'admin-delete-categories' => (new CategoryController)->delete(),
