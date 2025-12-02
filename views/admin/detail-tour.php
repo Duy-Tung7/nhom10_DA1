@@ -11,9 +11,6 @@
         <p><strong>Giá:</strong> <?= number_format($data['base_price']) ?> VND</p>
         <p><strong>Thời lượng:</strong> <?= $data['duration'] ?> ngày</p>
         <p><strong>Mô tả:</strong> <?= nl2br(htmlspecialchars($data['description'])) ?></p>
-        <p><strong>Ngày bắt đầu:</strong> <?= $data['start_date'] ?></p>
-        <p><strong>Ngày kết thúc:</strong> <?= $data['end_date'] ?></p>
-
         <hr>
         <h5>Lịch trình</h5>
         <?php if (!empty($data['itineraries'])): ?>
