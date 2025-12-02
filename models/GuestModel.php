@@ -24,4 +24,12 @@ class GuestModel extends BaseModel {
             return [];
         }
     }
+public function updateStatus($id, $new_status) {
+    $sql = "UPDATE guests SET status = :status WHERE id = :id";
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute([
+        ':status' => $new_status,
+        ':id' => $id
+    ]);
+}
 }

@@ -1,46 +1,61 @@
 <?php
-require_once 'models/Tour.php';
-require_once 'models/GuestModel.php';
-
-class GuideController {
-    
-    private $tourModel;
-    private $guestModel;
-
-    public function __construct() {
-        $this->tourModel = new Tour();
-        $this->guestModel = new GuestModel();
-    }
-
-    // 1. Xem lịch làm việc của chính mình
-    public function mySchedule() {
-        // Giả lập ID của HDV đang đăng nhập (Sau này lấy từ Session)
-        $guide_id = 1; 
-
-        $tours = $this->tourModel->getToursByGuide($guide_id);
-
-        $title = "Lịch dẫn tour";
-        // View này nằm ở thư mục riêng cho client/guide, không dùng view admin
-        $view = "guide/my-schedule"; 
+ class GuideController{
+    public function index(){
         
-        // Gọi Layout dành cho phía Client (Header/Footer đơn giản hơn Admin)
-        require_once PATH_VIEW . 'main.php'; 
-    }
-
-    // 2. Xem danh sách khách của một tour cụ thể
-    public function viewGuests() {
-        if (!isset($_GET['tour_id'])) die("Thiếu ID Tour");
-        
-        $tour_id = $_GET['tour_id'];
-        
-        // (Tùy chọn) Nên kiểm tra xem Tour này có đúng là của HDV này dẫn không để bảo mật
-        
-        $guests = $this->guestModel->getGuestsByTour($tour_id);
-
-        $title = "Danh sách khách hàng";
-        $view = "guide/guest-list";
-        
+        $title = "Trang dashboard";
+        $view = "guide/dashboard";
         require_once PATH_VIEW . 'main.php';
     }
+    public function listTours() {
+        // 1. Giả định ID của hướng dẫn viên đang đăng nhập là 1 (Sau này bạn thay bằng $_SESSION['user_id'])
+        $guide_id = 1; 
+        $model = new GuideModel();
+        $tours = $model->getToursByGuide($guide_id);
+
+        // 3. Hiển thị ra giao diện
+        // Bạn cần tạo file này ở Bước 3
+        include 'views/guide/my-tours.php'; 
+    }
+  public function listGuests() {
+    // 1. Link bạn gửi là: ?action=guide-guests&tour_id=...
+    // Nên ta dùng $_GET['tour_id'] để hứng lấy cái số đó.
+    
+    $tour_id = isset($_GET['tour_id']) ? $_GET['tour_id'] : null;
+
+    // Kiểm tra xem đã lấy được chưa
+    if ($tour_id) {
+        // Gọi Model
+        $guestModel = new GuestModel();
+        $guests = $guestModel->getGuestsByTour($tour_id);
+
+        // Gọi View (Sửa lại đường dẫn file này cho đúng thư mục của bạn)
+        // Dựa theo ảnh trước đó thì là:
+        include 'views/guide/Guest-list.php'; 
+    } else {
+        // Đây là dòng thông báo lỗi bạn đang gặp
+        echo "Lỗi: Không tìm thấy ID của Tour. (tour_id trên URL bị rỗng)";
+    }
+
 }
-?>
+// File: app/controllers/GuideController.php
+
+public function checkIn() {
+    // 1. Lấy dữ liệu từ URL
+    $guest_id = isset($_GET['id']) ? $_GET['id'] : null;
+    $tour_id = isset($_GET['tour_id']) ? $_GET['tour_id'] : null;
+
+    if ($guest_id && $tour_id) {
+        // 2. Gọi Model để update trạng thái thành 2 (Đã Check-in)
+        $model = new GuestModel();
+        $model->updateStatus($guest_id, 2);
+
+        // 3. Quay lại trang danh sách (Reload)
+        header("Location: index.php?action=guide-guests&tour_id=" . $tour_id);
+        exit();
+    } else {
+        echo "Lỗi thiếu thông tin ID.";
+    }
+}
+}
+    
+ 
