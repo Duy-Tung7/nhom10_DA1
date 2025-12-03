@@ -1,50 +1,83 @@
 <?php
-// models/Guide.php
 require_once 'BaseModel.php';
 
 class Guide extends BaseModel {
-    
-    // Lấy danh sách HDV (có tìm kiếm và phân trang)
-    public function getAllGuides($keyword = '', $filterStatus = '', $page = 1, $limit = 10) {
-        $offset = ($page - 1) * $limit;
-        $sql = "SELECT * FROM guides WHERE 1=1";
-        
-        // Chức năng tìm kiếm (Tên, SĐT, Email)
+    protected $table = 'guides';
+
+    // Hàm kết nối
+    public function getDb() {
+        if (isset($this->conn)) return $this->conn;
+        if (isset($this->db)) return $this->db;
+        if (isset($this->pdo)) return $this->pdo;
+        return new PDO("mysql:host=localhost;dbname=nhom10_da1;charset=utf8", "root", "");
+    }
+
+    public function getList($keyword = '') {
+        $sql = "SELECT * FROM {$this->table} WHERE 1=1";
         if (!empty($keyword)) {
-            $sql .= " AND (name LIKE '%$keyword%' OR phone LIKE '%$keyword%' OR email LIKE '%$keyword%')";
+            $sql .= " AND (phone LIKE :kw OR languages LIKE :kw)";
+            $stmt = $this->getDb()->prepare($sql);
+            $stmt->execute(['kw' => "%$keyword%"]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
-        
-        // Chức năng lọc (Ví dụ lọc theo phân loại Quốc tế/Nội địa)
-        if (!empty($filterStatus)) {
-            $sql .= " AND type = '$filterStatus'";
-        }
-
-        $sql .= " ORDER BY id DESC LIMIT $offset, $limit";
-        
-        // Thực thi query (giả sử BaseModel có hàm query)
-        return $this->query($sql); 
+        $sql .= " ORDER BY id DESC";
+        $stmt = $this->getDb()->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // Đếm tổng số bản ghi để làm phân trang
-    public function countTotalGuides($keyword = '') {
-        $sql = "SELECT COUNT(*) as total FROM guides WHERE 1=1";
-        if (!empty($keyword)) {
-            $sql .= " AND (name LIKE '%$keyword%' OR phone LIKE '%$keyword%' OR email LIKE '%$keyword%')";
-        }
-        $result = $this->queryOne($sql);
-        return $result['total'];
-    }
-
-    // Xóa HDV
-    public function deleteGuide($id) {
-        $sql = "DELETE FROM guides WHERE id = $id";
-        return $this->execute($sql);
-    }
-    
-    // Lấy chi tiết 1 HDV (cho chức năng Sửa/Chi tiết)
     public function getGuideById($id) {
-        $sql = "SELECT * FROM guides WHERE id = $id";
-        return $this->queryOne($sql);
+        $sql = "SELECT * FROM {$this->table} WHERE id = :id";
+        $stmt = $this->getDb()->prepare($sql);
+        $stmt->execute(['id' => $id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    // --- HÀM SAVE ĐÃ SỬA LỖI ---
+    public function save($data) {
+        $db = $this->getDb();
+        
+        if (isset($data['id']) && !empty($data['id'])) {
+            // --- TRƯỜNG HỢP 1: CẬP NHẬT (UPDATE) ---
+            // SQL này CÓ tham số :id, nên ta giữ nguyên $data['id']
+            $sql = "UPDATE {$this->table} SET 
+                    user_id = :user_id,
+                    phone = :phone,
+                    birthday = :birthday,
+                    avatar = :avatar,
+                    languages = :languages,
+                    experience_years = :experience_years,
+                    health_status = :health_status,
+                    certifications = :certifications
+                    WHERE id = :id";
+            
+            $stmt = $db->prepare($sql);
+            return $stmt->execute($data);
+
+        } else {
+            // --- TRƯỜNG HỢP 2: THÊM MỚI (INSERT) ---
+            // SQL này KHÔNG CÓ tham số :id (vì id tự tăng)
+            $sql = "INSERT INTO {$this->table} 
+                    (user_id, phone, birthday, avatar, languages, experience_years, health_status, certifications) 
+                    VALUES 
+                    (:user_id, :phone, :birthday, :avatar, :languages, :experience_years, :health_status, :certifications)";
+            
+            // QUAN TRỌNG: Xóa 'id' khỏi mảng data trước khi chạy lệnh Insert
+            // Nếu không xóa, máy sẽ báo lỗi "Invalid parameter number" vì thừa id
+            unset($data['id']); 
+
+            $stmt = $db->prepare($sql);
+            return $stmt->execute($data);
+        }
+    }
+
+    public function delete($id) {
+        try {
+            $sql = "DELETE FROM {$this->table} WHERE id = :id";
+            $stmt = $this->getDb()->prepare($sql);
+            return $stmt->execute(['id' => $id]);
+        } catch (Exception $e) {
+            return false;
+        }
     }
 }
-?>

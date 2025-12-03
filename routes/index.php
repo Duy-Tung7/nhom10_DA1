@@ -35,14 +35,30 @@ match ($action) {
     'admin-create-tour' => (new TourController)->create(),
     'admin-update-tour' => (new TourController)->update(),
     'admin-delete-tour' => (new TourController)->delete(),
+    'admin-tour-detail'  => (new TourController)->detail(),
+
+    // ------------- Guide (Quản lý HDV) -------------
+    // --- Guide (Đã đầy đủ chức năng) ---
+    'admin-list-guides'   => (new GuidesController)->index(),
+    'admin-create-guide'  => (new GuidesController)->create(), // Hiện form thêm
+    'admin-store-guide'   => (new GuidesController)->store(),  // Xử lý lưu thêm
+    'admin-edit-guide'    => (new GuidesController)->edit(),   // Hiện form sửa
+    'admin-update-guide'  => (new GuidesController)->update(), // Xử lý lưu sửa
+    'admin-delete-guide'  => (new GuidesController)->delete(), // Xóa
+    'admin-detail-guide'  => (new GuidesController)->detail(), // Chi tiết
     // ==================== User ====================
     'home'      => (new HomeController)->index(),
     'login'     => (new HomeController)->login(),
     'logout'    => (new HomeController)->logout(),
-    // ==================== Booking ====================
-    'booking-list'     => (new BookingController)->index(),    
-    'booking-create'   => (new BookingController)->create(),   
-    'booking-store' =>(new BookingController())->store(),
+
+    
+
+    'admin-tour-detail' => (new TourController)->detail(),
+
+    // ==================== User & Auth ====================
+    'home'   => (new HomeController)->index(),
+    'login'  => (new HomeController)->login(),
+    'logout' => (new HomeController)->logout(),
 
     default => (new HomeController)->index(),
 };
