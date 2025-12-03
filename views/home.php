@@ -58,8 +58,8 @@
 <div class="container mt-5 text-center">
     <h1 class="mb-4">Chào mừng đến với Website Du Lịch!</h1>
 
-    <?php if (isset($_SESSION['user'])): ?>
-        <p>Xin chào, <strong><?= htmlspecialchars($_SESSION['user']['name']) ?></strong>!</p>
+    <?php if (isset($_SESSION['userLogin'])): ?>
+        <?= htmlspecialchars($_SESSION['userLogin']['name']) ?>
         <a href="index.php?action=login" class="btn btn-danger">Đăng xuất</a>
     <?php else: ?>
         <a href="index.php?action=login" class="btn btn-primary">Đăng nhập</a>
