@@ -127,7 +127,7 @@ foreach ($labels as $type => $label):
 <td><?= $b['created_at'] ?? '' ?></td>
 <td><?= htmlspecialchars($b['note'] ?? '') ?></td>
 
-    </tr>
+</tr>
 <?php endforeach; ?>
 </tbody>
 
