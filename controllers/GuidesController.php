@@ -27,6 +27,9 @@ class GuideController {
         // include 'views/admin/quanly&dieuhanh/create-guide.php';
     }
     
+    public function profile(){
+        
+    }
     // Bạn có thể thêm các hàm store(), edit(), update(), delete() tại đây
 }
 ?>
