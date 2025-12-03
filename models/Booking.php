@@ -11,7 +11,8 @@ class Booking
         }
         $this->conn->set_charset("utf8mb4");
     }
-     public function getLastInsertId() {
+
+    public function getLastInsertId() {
         return $this->conn->insert_id;
     }
 
@@ -28,27 +29,19 @@ class Booking
         return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
     }
 
-public function getAllGuides()
-{
-    $sql = "SELECT tours_id, guide_id, full_name,phone, status, assigned_date
-            FROM tour_guides";
-            
-    $result = $this->conn->query($sql);
-    return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
-}
-
-
+    public function getAllGuides()
+    {
+        $sql = "SELECT tours_id, guide_id, full_name, phone, status, assigned_date FROM tour_guides";
+        $result = $this->conn->query($sql);
+        return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+    }
 
     public function getAllBookings()
     {
-        $sql = "SELECT b.*, 
-                       t.name AS tour_name, 
-                       t.type AS tour_type,
-                       b.guide_name
+        $sql = "SELECT b.*, t.name AS tour_name, t.type AS tour_type, b.guide_name
                 FROM bookings b
                 LEFT JOIN tours t ON t.id = b.tour_id
                 ORDER BY b.id DESC";
-
         $result = $this->conn->query($sql);
         return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
     }
@@ -68,82 +61,98 @@ public function getAllGuides()
         return $timestamp ? date("Y-m-d", $timestamp) : null;
     }
 
-    // ============================
-    //  Tạo booking
-    // ============================
-public function createBooking($data)
-{
-    $start_date  = $this->formatDate($data['start_date']);
-    $end_date    = $this->formatDate($data['end_date']);
-    $finish_date = $this->formatDate($data['finish_date']);
-    $num_people  = (int)$data['num_people'];
-    $note        = $data['note'] ?? null;
-    $total_price = (float)$data['total_price'];
-    $guide_name  = $data['guide_name'] ?? null;
-    $guide_id    = $data['tour_guide_id'] ?? null;
-
-    // Bắt buộc
-    if (empty($data['tour_id']) || empty($data['contact_name']) || empty($data['phone']) || empty($data['email'])) {
-        return ["success" => false, "message" => "Các trường bắt buộc chưa được điền."];
+    // validate customer exists
+    public function isValidCustomer($customer_id)
+    {
+        $stmt = $this->conn->prepare("SELECT id FROM customers WHERE id = ?");
+        $stmt->bind_param("i", $customer_id);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        return $res && $res->num_rows > 0;
     }
 
-    // Kiểm tra HDV bận
-    if ($guide_id && $this->isGuideBusy($guide_id, $start_date, $end_date)) {
-        return ["success" => false, "message" => "Hướng dẫn viên đã bận trong khoảng thời gian này."];
-    }
+    // ========== create booking ==========
+    public function createBooking($data)
+    {
+        $start_date  = $this->formatDate($data['start_date'] ?? null);
+        $end_date    = $this->formatDate($data['end_date'] ?? null);
+        $finish_date = $this->formatDate($data['finish_date'] ?? null);
+        $num_people  = (int)($data['num_people'] ?? 0);
+        $note        = $data['note'] ?? null;
+        $total_price = (float)($data['total_price'] ?? 0);
+        // NOTE: form uses guide_id; DB column is tour_guide_id
+        $guide_id    = !empty($data['guide_id']) ? (int)$data['guide_id'] : null;
+        $guide_name  = $data['guide_name'] ?? null;
 
-    // Nếu có danh sách khách, kiểm tra trùng lịch
-    if (!empty($data['customer_ids'])) {
-        foreach ($data['customer_ids'] as $cid) {
-            if ($this->isCustomerBusy($cid, $start_date, $end_date)) {
-                return ["success" => false, "message" => "Khách hàng ID $cid đã trùng lịch."];
-            }
-            if ($this->isCustomerBookedForTour($cid, $data['tour_id'])) {
-                return ["success" => false, "message" => "Khách hàng ID $cid đã đăng ký tour này."];
-            }
-        }
-    }
-
-    // Thêm booking
-    $stmt = $this->conn->prepare(
-        "INSERT INTO bookings
-        (tour_id, contact_name, phone, email, num_people, total_price, start_date, end_date, finish_date, tour_guide_id, guide_name, note, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())"
-    );
-
-    $stmt->bind_param(
-        "isssidsssiss",
-        $data['tour_id'],
-        $data['contact_name'],
-        $data['phone'],
-        $data['email'],
-        $num_people,
-        $total_price,
-        $start_date,
-        $end_date,
-        $finish_date,
-        $guide_id,
-        $guide_name,
-        $note
-    );
-
-    if ($stmt->execute()) {
-        $booking_id = $stmt->insert_id;
-
-        // Gán khách nếu có
-        if (!empty($data['customer_ids'])) {
-            $this->assignCustomers($booking_id, $data['customer_ids']);
+        // Required fields
+        if (empty($data['tour_id']) || empty($data['contact_name']) || empty($data['phone']) || empty($data['email'])) {
+            return ["success" => false, "message" => "Các trường bắt buộc chưa được điền."];
         }
 
-        return ["success" => true, "booking_id" => $booking_id];
+        // If guide specified, check busy
+        if ($guide_id && $this->isGuideBusy($guide_id, $start_date, $end_date)) {
+            return ["success" => false, "message" => "Hướng dẫn viên đã bận trong khoảng thời gian này."];
+        }
+
+        // If customer_ids present: basic validation (existence). Overlap checks occur in assignCustomers
+        $customer_ids = [];
+        if (!empty($data['customer_ids']) && is_array($data['customer_ids'])) {
+            foreach ($data['customer_ids'] as $cid) {
+                $cid = (int)$cid;
+                if ($cid <= 0) {
+                    return ["success" => false, "message" => "ID khách hàng không hợp lệ."];
+                }
+                if (!$this->isValidCustomer($cid)) {
+                    return ["success" => false, "message" => "Khách hàng ID $cid không tồn tại."];
+                }
+                $customer_ids[] = $cid;
+            }
+        }
+
+        // Insert booking
+        $stmt = $this->conn->prepare(
+            "INSERT INTO bookings
+            (tour_id, contact_name, phone, email, num_people, total_price, start_date, end_date, finish_date, tour_guide_id, guide_name, note, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())"
+        );
+
+        // types: i s s s i d s s s i s s
+        $stmt->bind_param(
+            "isssidsssiss",
+            $data['tour_id'],
+            $data['contact_name'],
+            $data['phone'],
+            $data['email'],
+            $num_people,
+            $total_price,
+            $start_date,
+            $end_date,
+            $finish_date,
+            $guide_id,
+            $guide_name,
+            $note
+        );
+
+        if ($stmt->execute()) {
+            $booking_id = $stmt->insert_id;
+
+            // assign customers if any: now assignCustomers returns array with success/message
+            if (!empty($customer_ids)) {
+                $assignResult = $this->assignCustomers($booking_id, $customer_ids);
+                if (!$assignResult['success']) {
+                    // rollback: delete booking we just created (optional)
+                    $this->conn->query("DELETE FROM bookings WHERE id = " . (int)$booking_id);
+                    return ["success" => false, "message" => $assignResult['message']];
+                }
+            }
+
+            return ["success" => true, "booking_id" => $booking_id];
+        }
+
+        return ["success" => false, "message" => $stmt->error];
     }
 
-    return ["success" => false, "message" => $stmt->error];
-}
-
-    // ============================
-    // Check HDV bận
-    // ============================
+    // ========== guide busy ==========
     public function isGuideBusy($guide_id, $start_date, $end_date, $ignore = null)
     {
         $sql = "SELECT id FROM bookings 
@@ -162,7 +171,8 @@ public function createBooking($data)
         }
 
         $stmt->execute();
-        return $stmt->get_result()->num_rows > 0;
+        $res = $stmt->get_result();
+        return $res && $res->num_rows > 0;
     }
 
     public function updateGuide($booking_id, $guide_id)
@@ -172,106 +182,107 @@ public function createBooking($data)
         return $stmt->execute();
     }
 
-    // ============================
-    // Khách đã gán
-    // ============================
-   // Kiểm tra khách hàng trùng lịch
-public function isCustomerBusy($customer_id, $start_date, $end_date, $exclude_booking_id = null)
-{
-    $sql = "SELECT COUNT(*) AS cnt
-            FROM booking_customers bc
-            JOIN bookings b ON bc.booking_id = b.id
-            WHERE bc.customer_id = ?
-              AND NOT (b.end_date < ? OR b.start_date > ?)";
-    
-    if ($exclude_booking_id) {
-        $sql .= " AND bc.booking_id != ?";
-    }
+    // ========== isCustomerBusy ==========
+    // Check if customer has any booking that overlaps [start_date, end_date]
+    public function isCustomerBusy($customer_id, $start_date, $end_date, $exclude_booking_id = null)
+    {
+        // Correct overlap logic: existing.start_date <= new_end AND existing.end_date >= new_start
+        $sql = "SELECT COUNT(*) AS cnt
+                FROM booking_customers bc
+                JOIN bookings b ON bc.booking_id = b.id
+                WHERE bc.customer_id = ?
+                  AND b.start_date <= ?
+                  AND b.end_date >= ?";
 
-    $stmt = $this->conn->prepare($sql);
-
-    if ($exclude_booking_id) {
-        $stmt->bind_param("isss", $customer_id, $end_date, $start_date, $exclude_booking_id);
-    } else {
-        $stmt->bind_param("iss", $customer_id, $end_date, $start_date);
-    }
-
-    $stmt->execute();
-    $result = $stmt->get_result()->fetch_assoc();
-
-    return $result['cnt'] > 0;
-}
-
-
-// Kiểm tra khách hàng đã đăng ký tour
-public function isCustomerBookedForTour($customer_id, $tour_id, $exclude_booking_id = null)
-{
-    $sql = "SELECT COUNT(*) AS cnt
-            FROM booking_customers bc
-            JOIN bookings b ON bc.booking_id = b.id
-            WHERE bc.customer_id = ? AND b.tour_id = ?";
-    
-    if ($exclude_booking_id) {
-        $sql .= " AND bc.booking_id != ?";
-    }
-
-    $stmt = $this->conn->prepare($sql);
-
-    if ($exclude_booking_id) {
-        $stmt->bind_param("iii", $customer_id, $tour_id, $exclude_booking_id);
-    } else {
-        $stmt->bind_param("ii", $customer_id, $tour_id);
-    }
-
-    $stmt->execute();
-    $result = $stmt->get_result()->fetch_assoc();
-
-    return $result['cnt'] > 0;
-}
-
-// Gán khách hàng vào booking
-public function assignCustomers($booking_id, $customer_ids)
-{
-    $booking = $this->getBookingById($booking_id);
-
-    $start = $booking['start_date'];
-    $end   = $booking['end_date'];
-
-    foreach ($customer_ids as $cid) {
-
-        // Kiểm tra trùng lịch
-        if ($this->isCustomerBusy($cid, $start, $end, $booking_id)) {
-            return [
-                'success' => false,
-                'message' => "Khách ID $cid đang bận trong thời gian này."
-            ];
+        if ($exclude_booking_id) {
+            $sql .= " AND bc.booking_id != ?";
         }
 
-        // Kiểm tra trùng tour
-        if ($this->isCustomerBookedForTour($cid, $booking['tour_id'], $booking_id)) {
-            return [
-                'success' => false,
-                'message' => "Khách ID $cid đã đăng ký tour này."
-            ];
+        $stmt = $this->conn->prepare($sql);
+
+        if ($exclude_booking_id) {
+            $stmt->bind_param("issi", $customer_id, $end_date, $start_date, $exclude_booking_id);
+        } else {
+            $stmt->bind_param("iss", $customer_id, $end_date, $start_date);
         }
-    }
 
-    // ===============================
-    // INSERT KHÁCH HÀNG VÀO BOOKING
-    // ===============================
-    $stmt = $this->conn->prepare(
-        "INSERT INTO booking_customers (booking_id, customer_id)
-         VALUES (?, ?)"
-    );
-
-    foreach ($customer_ids as $cid) {
-        $stmt->bind_param("ii", $booking_id, $cid);
         $stmt->execute();
+        $result = $stmt->get_result()->fetch_assoc();
+
+        return (int)$result['cnt'] > 0;
     }
 
-    return ['success' => true];
-}
+    // ========== isCustomerBookedForTour ==========
+    public function isCustomerBookedForTour($customer_id, $tour_id, $exclude_booking_id = null)
+    {
+        $sql = "SELECT COUNT(*) AS cnt
+                FROM booking_customers bc
+                JOIN bookings b ON bc.booking_id = b.id
+                WHERE bc.customer_id = ? AND b.tour_id = ?";
 
+        if ($exclude_booking_id) {
+            $sql .= " AND bc.booking_id != ?";
+        }
 
+        $stmt = $this->conn->prepare($sql);
 
+        if ($exclude_booking_id) {
+            $stmt->bind_param("iii", $customer_id, $tour_id, $exclude_booking_id);
+        } else {
+            $stmt->bind_param("ii", $customer_id, $tour_id);
+        }
+
+        $stmt->execute();
+        $result = $stmt->get_result()->fetch_assoc();
+
+        return (int)$result['cnt'] > 0;
+    }
+
+    // ========== assignCustomers ==========
+    // Returns ['success'=>bool, 'message'=>string]
+    public function assignCustomers($booking_id, $customer_ids)
+    {
+        // get booking dates
+        $booking = $this->getBookingById($booking_id);
+        if (!$booking) {
+            return ['success' => false, 'message' => 'Booking không tồn tại.'];
+        }
+
+        $start = $booking['start_date'];
+        $end   = $booking['end_date'];
+
+        // Validate and check overlaps first (so it's atomic in logic)
+        foreach ($customer_ids as $cid) {
+            $cid = (int)$cid;
+            if ($cid <= 0) {
+                return ['success' => false, 'message' => "ID khách không hợp lệ: $cid"];
+            }
+            if (!$this->isValidCustomer($cid)) {
+                return ['success' => false, 'message' => "Khách hàng ID $cid không tồn tại."];
+            }
+            if ($this->isCustomerBusy($cid, $start, $end, $booking_id)) {
+                return ['success' => false, 'message' => "Khách ID $cid đang bận trong thời gian này."];
+            }
+            if ($this->isCustomerBookedForTour($cid, $booking['tour_id'], $booking_id)) {
+                return ['success' => false, 'message' => "Khách ID $cid đã đăng ký tour này."];
+            }
+        }
+
+        // Now insert
+        $stmt = $this->conn->prepare("INSERT INTO booking_customers (booking_id, customer_id) VALUES (?, ?)");
+        if (!$stmt) {
+            return ['success' => false, 'message' => $this->conn->error];
+        }
+
+        foreach ($customer_ids as $cid) {
+            $cid = (int)$cid;
+            $stmt->bind_param("ii", $booking_id, $cid);
+            if (!$stmt->execute()) {
+                // If any insert fails, return error (you could rollback multiple inserts here if needed)
+                return ['success' => false, 'message' => $stmt->error];
+            }
+        }
+
+        return ['success' => true, 'message' => 'Gán khách thành công.'];
+    }
 }
