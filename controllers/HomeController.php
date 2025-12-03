@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../models/BaseModel.php';
+require_once __DIR__ . '/../models/User.php';
 
 class HomeController
 {
@@ -7,8 +8,7 @@ class HomeController
 
     public function __construct()
     {
-        $this->userModel = new User();  // dùng model User, KHÔNG dùng BaseModel
-      
+        $this->userModel = new User();  
     }
 
     public function index()
@@ -17,32 +17,33 @@ class HomeController
     }
 
     public function login()
-{
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $name     = $_POST['name'] ?? '';
-        $email    = $_POST['email'] ?? '';
-        $password = $_POST['password'] ?? '';
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $name     = $_POST['name'] ?? '';
+            $email    = $_POST['email'] ?? '';
+            $password = $_POST['password'] ?? '';
 
-        $user = $this->baseModel->checkLogin($email, $password);
+            // ---- SỬA Ở ĐÂY ----
+            $user = $this->userModel->checkLogin($email, $password);
 
-        if ($user) {
-            $_SESSION['user'] = $user;
+            if ($user) {
+                $_SESSION['user'] = $user;
 
-            // Kiểm tra nếu user là admin
-            if (isset($user['role']) && $user['role'] === 'admin') {
-                header("Location: index.php?action=admin"); // redirect vào trang admin
+                // Kiểm tra nếu user là admin
+                if (isset($user['role']) && $user['role'] === 'admin') {
+                    header("Location: index.php?action=admin");
+                } else {
+                    header("Location: index.php?action=home");
+                }
+                exit;
             } else {
-                header("Location: index.php?action=home");  // redirect vào trang home bình thường
+                $error = "Email hoặc mật khẩu sai!";
+                include __DIR__ . '/../views/login.php';
             }
-            exit;
         } else {
-            $error = "Email hoặc mật khẩu sai!";
             include __DIR__ . '/../views/login.php';
         }
-    } else {
-        include __DIR__ . '/../views/login.php';
     }
-}
 
     public function logout()
     {
