@@ -2,6 +2,7 @@
 
 $action = $_GET['action'] ?? '/';
 
+
 match ($action) {
     '/' => (new HomeController)->index(),
 
@@ -34,12 +35,14 @@ match ($action) {
     'admin-create-tour' => (new TourController)->create(),
     'admin-update-tour' => (new TourController)->update(),
     'admin-delete-tour' => (new TourController)->delete(),
-    'admin-tour-detail' => (new TourController)->detail(),
-
-    // ==================== User & Auth ====================
-    'home'   => (new HomeController)->index(),
-    'login'  => (new HomeController)->login(),
-    'logout' => (new HomeController)->logout(),
+    // ==================== User ====================
+    'home'      => (new HomeController)->index(),
+    'login'     => (new HomeController)->login(),
+    'logout'    => (new HomeController)->logout(),
+    // ==================== Booking ====================
+    'booking-list'     => (new BookingController)->index(),    
+    'booking-create'   => (new BookingController)->create(),   
+    'booking-store' =>(new BookingController())->store(),
 
     default => (new HomeController)->index(),
 };
