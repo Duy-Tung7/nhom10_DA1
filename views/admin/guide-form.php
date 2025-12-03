@@ -64,6 +64,7 @@
 
                 <div class="mt-4 text-center">
                     <button type="submit" class="btn btn-success px-5"><i class="fas fa-save"></i> Lưu dữ liệu</button>
+                    
                     <a href="index.php?action=admin-list-guides" class="btn btn-secondary px-3">Hủy</a>
                 </div>
             </form>

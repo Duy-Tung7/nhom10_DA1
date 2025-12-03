@@ -1,4 +1,9 @@
 <div class="container-fluid py-4">
+    <div class="mb-3">
+    <a href="index.php?action=admin-list-categories" class="btn btn-secondary btn-sm">
+        <i class="fas fa-arrow-left"></i> Quay lai
+    </a>
+</div>
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="h3 mb-0 text-gray-800">Quản lý Hướng Dẫn Viên</h2>
         <a href="index.php?action=admin-create-guide" class="btn btn-primary shadow-sm">

@@ -1,93 +1,34 @@
 <?php
+class BaseModel {
+    // Biến lưu kết nối
+    protected $conn;
 
-class BaseModel
-{
-    protected $table;
-    protected $pdo;
-
-    // Kết nối CSDL
-    public function __construct()
-    {
-        $dsn = sprintf('mysql:host=%s;port=%s;dbname=%s;charset=utf8', DB_HOST, DB_PORT, DB_NAME);
-
+    public function __construct() {
         try {
-            $this->pdo = new PDO($dsn, DB_USERNAME, DB_PASSWORD, DB_OPTIONS);
+            // Tên Database chuẩn theo lỗi cũ của bạn là: da1_nhom10
+            $this->conn = new PDO("mysql:host=localhost;dbname=da1_nhom10;charset=utf8", "root", "");
+            $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (PDOException $e) {
-            // Xử lý lỗi kết nối
-            die("Kết nối cơ sở dữ liệu thất bại: {$e->getMessage()}. Vui lòng thử lại sau.");
+            die("Lỗi kết nối CSDL: " . $e->getMessage());
         }
     }
-    
 
-    // Hủy kết nối CSDL
-    public function __destruct()
-    {
-        $this->pdo = null;
-    }// --- BẮT ĐẦU ĐOẠN CẦN THÊM (Dòng 25) ---
+    // --- ĐÂY LÀ HÀM QUAN TRỌNG ĐỂ SỬA LỖI CỦA BẠN ---
+    // Giúp Category.php lấy được kết nối mà không bị lỗi "undefined method"
+    public function getConnection() {
+        return $this->conn;
+    }
 
-    // Hàm thực thi câu lệnh SQL và lấy về danh sách (dùng cho hàm getAllGuides)
+    // Hàm query cơ bản
     public function query($sql) {
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute();
-        return $stmt->fetchAll();
+        try {
+            $stmt = $this->conn->prepare($sql);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            echo "Lỗi SQL: " . $e->getMessage();
+            return [];
+        }
     }
-
-    // Hàm lấy về 1 dòng dữ liệu (dùng cho hàm countTotalGuides ở dòng 34 bên kia)
-    public function queryOne($sql) {
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute();
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
-
-    // --- KẾT THÚC ĐOẠN CẦN THÊM ---
-    
-    public function getConnection()
-    {
-        return $this->pdo;
-    }
-    // --- BẮT ĐẦU ĐOẠN CODE CẦN THÊM (Dùng $this->pdo) ---
-
-    // Hàm 1: Thực thi và lấy danh sách (Fix lỗi Guide::query)
-    public function query($sql) {
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute();
-        return $stmt->fetchAll();
-    }
-
-    // Hàm 2: Thực thi và lấy 1 dòng (Fix lỗi đếm số lượng)
-    public function queryOne($sql) {
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute();
-        return $stmt->fetch();
-    }
-
-    // Hàm 3: Thực thi lệnh Xóa/Sửa (Fix lỗi deleteGuide)
-    public function execute($sql) {
-        $stmt = $this->pdo->prepare($sql);
-        return $stmt->execute();
-    }
-
-    // --- KẾT THÚC ĐOẠN CODE CẦN THÊM ---
-    public function findByEmail($email)
-    {
-        $stmt = $this->pdo->prepare("SELECT * FROM users WHERE email = :email LIMIT 1");
-        $stmt->execute([':email' => $email]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
-
-
-
-    public function checkLogin($email, $password)
-{
-    $email = strtolower(trim($email));
-    $hashedPassword = md5($password);
-
-    $sql = "SELECT * FROM users WHERE email = ? AND password = ?";
-    $stmt = $this->pdo->prepare($sql);
-    $stmt->execute([$email, $hashedPassword]);
-
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    return $user; 
 }
-}
+?>
