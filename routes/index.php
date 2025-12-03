@@ -8,6 +8,7 @@ match ($action) {
     // Dashboard admin
     'admin-sidebar' => (new DashboardController)->index(),
     'guide-sidebar' => (new GuideController)->index(),
+    
     // ==================== Category ====================
     'admin-list-categories'   => (new CategoryController)->index(), // Danh mục chính
     'admin-list-category'     => (new CategoryController)->index(), // Danh mục con → show tour
@@ -21,6 +22,8 @@ match ($action) {
     'admin-update-tour' => (new TourController)->update(),
     'admin-delete-tour' => (new TourController)->delete(),
     'admin-tour-detail'  => (new TourController)->detail(),
+
+
 
     // ==================== User ====================
     'home'      => (new HomeController)->index(),
