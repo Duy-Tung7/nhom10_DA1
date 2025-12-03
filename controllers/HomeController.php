@@ -3,18 +3,18 @@ require_once __DIR__ . '/../models/BaseModel.php';
 
 class HomeController
 {
-    protected $baseModel;
+    protected $userModel;
+
     public function __construct()
     {
-        $this->baseModel = new BaseModel();
+        $this->userModel = new User();  // dùng model User, KHÔNG dùng BaseModel
+      
     }
 
     public function index()
     {
         include __DIR__ . '/../views/home.php';
     }
-
- 
 
     public function login()
 {
@@ -45,11 +45,10 @@ class HomeController
 }
 
     public function logout()
-{
-    session_unset();
-    session_destroy();
-    header("Location: index.php?action=login");
-    exit;
-}
-
+    {
+        session_unset();
+        session_destroy();
+        header("Location: index.php?action=login");
+        exit;
+    }
 }
