@@ -17,38 +17,32 @@ class HomeController
     }
 
     public function login()
-    {
-        $method = $_SERVER['REQUEST_METHOD'];
-        if ($method == 'POST') {
-            $user = new User();
-            $check = $user->checkLogin($_POST['email'], $_POST['password']);
-            if ($check) {
-                $_SESSION['success'][] = "Đăng nhập thành công";
-                // Thông tin user đã đăng nhập
-                $_SESSION['userLogin'] = [
-                    'id' => $check['id'],
-                    'name' => $check['name'],
-                    'role' => $check['role'],
-                ];
-                if ($check['role'] == 1) {
-                    header("Location:" . BASE_URL . "?action=admin-sidebar");
-                    exit();
-                }if ($check['role'] == 2) {
-                    header("Location:" . BASE_URL . "?action=guide-sidebar");
-                    exit();
-                }
-                header("Location:" . BASE_URL);
-                exit();
+{
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $name     = $_POST['name'] ?? '';
+        $email    = $_POST['email'] ?? '';
+        $password = $_POST['password'] ?? '';
+
+        $user = $this->baseModel->checkLogin($email, $password);
+
+        if ($user) {
+            $_SESSION['user'] = $user;
+
+            // Kiểm tra nếu user là admin
+            if (isset($user['role']) && $user['role'] === 'admin') {
+                header("Location: index.php?action=admin"); // redirect vào trang admin
             } else {
-                $_SESSION['error'][] = "Đăng nhập thất bại";
-                header("Location:" . BASE_URL . "?action=login");
-                exit();
+                header("Location: index.php?action=home");  // redirect vào trang home bình thường
             }
+            exit;
+        } else {
+            $error = "Email hoặc mật khẩu sai!";
+            include __DIR__ . '/../views/login.php';
         }
-        $title = "Trang đăng nhập";
-        $view = "login";
-        require_once PATH_VIEW . 'main.php';
+    } else {
+        include __DIR__ . '/../views/login.php';
     }
+}
 
     public function logout()
     {

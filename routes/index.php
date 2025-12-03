@@ -2,12 +2,13 @@
 
 $action = $_GET['action'] ?? '/';
 
+
 match ($action) {
     '/' => (new HomeController)->index(),
 
     // ==================== Dashboard & Sidebar ====================
     'admin-sidebar' => (new DashboardController)->index(),
-    'guide-sidebar' => (new DashboardController)->index(),
+    'guide-sidebar' => (new GuideController)->index(),
     // ==================== Category ====================
     'admin-list-categories'   => (new CategoryController)->index(), // Danh mục chính
     'admin-list-category'     => (new CategoryController)->index(), // Danh mục con → show tour

@@ -1,5 +1,5 @@
 <div class="container">
-   
+
     <form action="" method="POST" enctype="multipart/form-data">
         <div class="mb-3">
             <label>Tên Tour</label>
@@ -9,8 +9,8 @@
         <div class="mb-3">
             <label>Danh mục</label>
             <select name="category_id" class="form-control" required>
-                <?php foreach($categories as $c): ?>
-                <option value="<?= $c['id'] ?>"><?= $c['name'] ?></option>
+                <?php foreach ($categories as $c): ?>
+                    <option value="<?= $c['id'] ?>"><?= $c['name'] ?></option>
                 <?php endforeach; ?>
             </select>
         </div>
@@ -30,23 +30,13 @@
             <textarea name="description" class="form-control"></textarea>
         </div>
 
-        <div class="mb-3">
-            <label>Ngày bắt đầu</label>
-            <input type="date" name="start_date" class="form-control">
-        </div>
-
-        <div class="mb-3">
-            <label>Ngày kết thúc</label>
-            <input type="date" name="end_date" class="form-control">
-        </div>
-
         <!-- Lịch trình -->
         <h5>Lịch trình</h5>
-        <?php for($i=1;$i<=5;$i++): ?>
-        <div class="mb-2">
-            <label>Ngày <?= $i ?></label>
-            <input type="text" name="itinerary[<?= $i ?>]" class="form-control" placeholder="Hoạt động ngày <?= $i ?>">
-        </div>
+        <?php for ($i = 1; $i <= 2; $i++): ?>
+            <div class="mb-2">
+                <label>Ngày <?= $i ?></label>
+                <input type="text" name="itinerary[<?= $i ?>]" class="form-control" placeholder="Hoạt động ngày <?= $i ?>">
+            </div>
         <?php endfor; ?>
 
         <!-- Nhà cung cấp -->
@@ -66,6 +56,7 @@
         </div>
 
         <!-- Chính sách -->
+        <!-- Chính sách -->
         <h5>Chính sách</h5>
         <div id="policies">
             <div class="row mb-2">
@@ -78,6 +69,11 @@
             </div>
         </div>
 
+        <!-- Nút xem hoặc tải file chính sách mẫu -->
+        <a href="/nhom10_Da1/assets/files/chinhSach.pdf" target="_blank">Xem chính sách mẫu</a>
+            
+
+
         <!-- Hình ảnh -->
         <div class="mb-3">
             <label>Hình ảnh</label>
@@ -85,5 +81,6 @@
         </div>
 
         <button type="submit" class="btn btn-primary">Thêm Tour</button>
+        <a href="<?= BASE_URL ?>?action=admin-sidebar" class="btn btn-success btn-sm">Quay lại</a>
     </form>
 </div>
