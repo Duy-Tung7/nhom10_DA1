@@ -1,3 +1,86 @@
+<style>
+    /* Khung chứa form */
+form {
+    width: 600px;
+    margin: 30px auto;
+    padding: 25px;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 0 12px rgba(0,0,0,0.15);
+    font-family: Arial, sans-serif;
+}
+
+/* Tiêu đề */
+h2 {
+    text-align: center;
+    font-size: 26px;
+    color: #2c3e50;
+    margin-bottom: 20px;
+}
+
+/* Label */
+form label {
+    font-weight: bold;
+    color: #333;
+    display: block;
+    margin-bottom: 6px;
+}
+
+/* Input, Select */
+form input[type="text"],
+form input[type="email"],
+form input[type="number"],
+form input[type="date"],
+form select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #bbb;
+    border-radius: 5px;
+    font-size: 15px;
+    margin-bottom: 15px;
+    transition: 0.3s;
+}
+
+/* Input focus */
+form input:focus,
+form select:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 6px rgba(52, 152, 219, 0.25);
+    outline: none;
+}
+
+/* Checkbox danh sách khách hàng */
+form input[type="checkbox"] {
+    margin-right: 5px;
+}
+
+/* Nút submit */
+form button {
+    width: 100%;
+    padding: 12px;
+    background: #3498db;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 17px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+/* Hover */
+form button:hover {
+    background: #2980b9;
+}
+
+/* Thông báo lỗi */
+p.error-message {
+    text-align: center;
+    color: #e74c3c;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+</style>
 <h2>Thêm Booking</h2>
 
 <?php if (!empty($message)): ?>
