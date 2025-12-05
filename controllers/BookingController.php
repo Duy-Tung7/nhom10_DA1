@@ -56,6 +56,49 @@ class BookingController
             $customers = $this->bookingModel->getAllCustomers();
             include __DIR__ . '/../views/book/booking_create.php';
         }
+        
+    }
+        public function edit()
+    {
+        $id = $_GET['id'] ?? 0;
+
+        $booking = $this->bookingModel->getBookingById($id);
+        if (!$booking) {
+            echo "Booking không tồn tại!";
+            return;
+        }
+
+        $tours = $this->bookingModel->getAllTours();
+        $guides = $this->bookingModel->getAllGuides();
+        $customers = $this->bookingModel->getAllCustomers();
+        $selected_customers = $this->bookingModel->getCustomerIdsByBooking($id);
+
+        include __DIR__ . '/../views/book/booking_edit.php';
+    }
+
+    public function update()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') return;
+
+        $id = $_POST['id'];
+        $data = $_POST;
+        $data['customer_ids'] = $_POST['customer_ids'] ?? [];
+
+        $result = $this->bookingModel->updateBooking($id, $data);
+
+        if ($result['success']) {
+            header("Location: index.php?action=booking-list");
+            exit;
+        }
+
+        $message = $result['message'];
+        $booking = $this->bookingModel->getBookingById($id);
+        $tours = $this->bookingModel->getAllTours();
+        $guides = $this->bookingModel->getAllGuides();
+        $customers = $this->bookingModel->getAllCustomers();
+        $selected_customers = $this->bookingModel->getCustomerIdsByBooking($id);
+
+        include __DIR__ . '/../views/book/booking_edit.php';
     }
 
     // ===============================
