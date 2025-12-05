@@ -54,16 +54,18 @@ class BaseModel
 
 
     public function checkLogin($email, $password)
-{
-    $email = strtolower(trim($email));
-    $hashedPassword = md5($password);
+    {
+        $sql = "SELECT * FROM users WHERE email = :email LIMIT 1";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([':email' => $email]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    $sql = "SELECT * FROM users WHERE email = ? AND password = ?";
-    $stmt = $this->pdo->prepare($sql);
-    $stmt->execute([$email, $hashedPassword]);
-
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    return $user; 
-}
+        if (!$user) {
+            return false;
+        }
+        if ($user['password'] !== md5($password)) {
+            return false;
+        }
+        return $user;
+    }
 }

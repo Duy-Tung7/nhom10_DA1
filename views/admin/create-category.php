@@ -11,6 +11,7 @@
                 <input type="text" class="form-control" name="name">
             </div>
             <button class="btn btn-primary">Thêm mới</button>
+           <a href="<?= BASE_URL?>?action=admin-list-categories" class="btn btn-success">Quay lại</a>
          </form>
     </div>
     </div>

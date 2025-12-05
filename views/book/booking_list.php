@@ -4,38 +4,102 @@
     <meta charset="UTF-8">
     <title>Danh sách Booking</title>
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; display: flex; gap: 20px; }
-        .menu { width: 250px; border: 1px solid #ccc; border-radius: 5px; }
-        .menu h3 { margin: 0; padding: 10px; background-color: #f0f0f0; border-bottom: 1px solid #ccc; }
-        .menu ul { list-style: none; margin: 0; padding: 0; }
-        .menu li { padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; position: relative; }
-        .menu li:hover { background-color: #f9f9f9; }
-        .mini-btn { position: absolute; right: 10px; top: 10px; cursor: pointer; }
-        .content { flex: 1; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { padding: 8px 12px; border: 1px solid #ccc; text-align: left; }
-        th { background-color: #f0f0f0; }
-    </style>
-</head>
-<body>
+.sidebar {
+    width: 250px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
 
-<div class="menu">
-    <h3>Quản lý Booking</h3>
+/* Tiêu đề */
+.sidebar .title {
+    padding: 10px;
+    background: #f0f0f0;
+    cursor: pointer;
+    border-bottom: 1px solid #ccc;
+    position: relative;
+}
+
+/* Mặc định submenu ẩn */
+.sidebar ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: none;
+}
+
+/* Chỉ mở submenu khi hover vào .title */
+.sidebar .title:hover + ul {
+    display: block;
+}
+
+/* Giữ submenu mở khi hover trong chính submenu */
+.sidebar ul:hover {
+    display: block;
+}
+
+.sidebar li {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    position: relative;
+}
+
+.sidebar li:hover {
+    background: #f9f9f9;
+}
+
+.mini-btn {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    cursor: pointer;
+}
+.tourTable table {
+    width: 100%;
+    border-collapse: collapse; /* gộp đường viền */
+    margin-top: 10px;
+}
+
+.tourTable th, .tourTable td {
+    border: 1px solid #ccc;
+    padding: 8px 12px;
+    text-align: left;
+}
+
+.tourTable th {
+    background-color: #f0f0f0;
+}
+
+.tourTable tr:hover {
+    background-color: #f9f9f9;
+}
+.tourTable {
+    display: none; /* Ẩn mặc định */
+}
+</style>
+
+<div class="sidebar">
+    <div class="title">Quản lý Booking</div>
+    <table class="table">
     <ul>
         <li onclick="showTour('domestic')">
             Tour trong nước
             <button class="mini-btn" onclick="event.stopPropagation(); openForm('domestic')">+</button>
         </li>
+
         <li onclick="showTour('international')">
             Tour quốc tế
             <button class="mini-btn" onclick="event.stopPropagation(); openForm('international')">+</button>
         </li>
+
         <li onclick="showTour('custom')">
             Tour theo yêu cầu
             <button class="mini-btn" onclick="event.stopPropagation(); openForm('custom')">+</button>
         </li>
     </ul>
+    </table>
 </div>
+
 
 <div class="content">
 

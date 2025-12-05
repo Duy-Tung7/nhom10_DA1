@@ -12,10 +12,16 @@ class Tour
     // -------------------- Tour cơ bản --------------------
     public function getAll()
     {
-        $stmt = $this->pdo->prepare("SELECT * FROM tours");
+        $stmt = $this->pdo->prepare("
+        SELECT t.*, c.name AS category_name
+        FROM tours t
+        LEFT JOIN categories c ON t.category_id = c.id
+        ORDER BY t.id DESC
+    ");
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
 
     public function getById($id)
     {

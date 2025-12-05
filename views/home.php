@@ -60,7 +60,6 @@
 
     <?php if (isset($_SESSION['userLogin'])): ?>
         <?= htmlspecialchars($_SESSION['userLogin']['name']) ?>
-        <a href="index.php?action=login" class="btn btn-danger">Đăng xuất</a>
     <?php else: ?>
         <a href="index.php?action=login" class="btn btn-primary">Đăng nhập</a>
     <?php endif; ?>
