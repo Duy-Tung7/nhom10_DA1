@@ -32,12 +32,30 @@
 
         <!-- Lịch trình -->
         <h5>Lịch trình</h5>
-        <?php for ($i = 1; $i <= 2; $i++): ?>
+
+        <div id="itineraryWrapper">
             <div class="mb-2">
-                <label>Ngày <?= $i ?></label>
-                <input type="text" name="itinerary[<?= $i ?>]" class="form-control" placeholder="Hoạt động ngày <?= $i ?>">
+                <label>Ngày 1</label>
+                <input type="text" name="itinerary[1]" class="form-control" placeholder="Hoạt động ngày 1">
             </div>
-        <?php endfor; ?>
+        </div>
+
+        <button type="button" class="btn btn-success btn-sm" id="addDayBtn">+ Thêm ngày</button>
+
+        <script>
+            let day = 1;
+
+            document.getElementById("addDayBtn").addEventListener("click", function() {
+                day++;
+                const div = document.createElement("div");
+                div.classList.add("mb-2");
+                div.innerHTML = `
+        <label>Ngày ${day}</label>
+        <input type="text" name="itinerary[${day}]" class="form-control" placeholder="Hoạt động ngày ${day}">
+    `;
+                document.getElementById("itineraryWrapper").appendChild(div);
+            });
+        </script>
 
         <!-- Nhà cung cấp -->
         <h5>Nhà cung cấp</h5>
@@ -71,7 +89,7 @@
 
         <!-- Nút xem hoặc tải file chính sách mẫu -->
         <a href="/nhom10_Da1/assets/files/chinhSach.pdf" target="_blank">Xem chính sách mẫu</a>
-            
+
 
 
         <!-- Hình ảnh -->

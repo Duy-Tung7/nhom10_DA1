@@ -8,7 +8,9 @@ match ($action) {
 
     // ==================== Dashboard & Sidebar ====================
     'admin-sidebar' => (new DashboardController)->index(),
+    'admin-dashboard' => (new DashboardController)->index(),
     'guide-sidebar' => (new GuideController)->index(),
+
     // ==================== Category ====================
     'admin-list-categories'   => (new CategoryController)->index(), // Danh mục chính
     'admin-list-category'     => (new CategoryController)->index(), // Danh mục con → show tour
@@ -19,13 +21,13 @@ match ($action) {
     // ==================== HDV (Hướng Dẫn Viên) ====================
     // 1. Dashboard chung của HDV
     'guide-sidebar', 'guide-dashboard' => (new GuideController)->index(),
-    
+
     // 2. Lịch tour của tôi (Action trong sidebar: guide-my-tours)
-    'guide-my-tours' => (new GuideController)->listTours(), 
-    
+    'guide-my-tours' => (new GuideController)->listTours(),
+
     // 3. Danh sách khách hàng (Action trong sidebar: guide-guests)
-    'guide-guests'   => (new GuideController)->listGuests(), 
-    
+    'guide-guests'   => (new GuideController)->listGuests(),
+
     // 4. Hồ sơ cá nhân (Action trong sidebar: guide-profile)
     'guide-profile'  => (new GuideController)->profile(),
     'check-in'       => (new GuideController)->checkIn(),
@@ -35,14 +37,19 @@ match ($action) {
     'admin-create-tour' => (new TourController)->create(),
     'admin-update-tour' => (new TourController)->update(),
     'admin-delete-tour' => (new TourController)->delete(),
+    'admin-tour-detail' => (new TourController)->detail(),
+
+    // ==================== Customers  ====================
+    'admin-list' => (new CustomerController)->index(),
+    'customer-detail' => (new CustomerController)->detail($_GET['id'] ?? 0),
     // ==================== User ====================
     'home'      => (new HomeController)->index(),
     'login'     => (new HomeController)->login(),
     'logout'    => (new HomeController)->logout(),
     // ==================== Booking ====================
-    'booking-list'     => (new BookingController)->index(),    
-    'booking-create'   => (new BookingController)->create(),   
-    'booking-store' =>(new BookingController())->store(),
+    'booking-list'     => (new BookingController)->index(),
+    'booking-create'   => (new BookingController)->create(),
+    'booking-store' => (new BookingController())->store(),
 
     default => (new HomeController)->index(),
 };
