@@ -150,7 +150,7 @@ function showTour(type) {
 }
 
 function openForm(type) {
-    window.location.href = "index.php?action=booking-create&tour_type=" + type;
+    window.location.href = "index.php?action=book-booking_create&tour_type=" + type;
 }
 </script>
 

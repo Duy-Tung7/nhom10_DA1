@@ -87,7 +87,7 @@ p.error-message {
     <p style="color: red; font-weight: bold;"><?= htmlspecialchars($message) ?></p>
 <?php endif; ?>
 
-<form action="index.php?action=booking-store" method="POST">
+<form action="index.php?action=book-booking_store" method="POST">
 
     <!-- Chọn Tour -->
     <label>Chọn Tour:</label>

@@ -8,7 +8,13 @@ match ($action) {
 
     // ==================== Dashboard & Sidebar ====================
     'admin-sidebar' => (new DashboardController)->index(),
-    'guide-sidebar' => (new GuideController)->index(),
+
+    'admin-dashboard' => (new DashboardController)->index(),
+    
+
+
+   
+
     // ==================== Category ====================
     'admin-list-categories'   => (new CategoryController)->index(), // Danh mục chính
     'admin-list-category'     => (new CategoryController)->index(), // Danh mục con → show tour
@@ -40,9 +46,11 @@ match ($action) {
     'login'     => (new HomeController)->login(),
     'logout'    => (new HomeController)->logout(),
     // ==================== Booking ====================
-    'booking-list'     => (new BookingController)->index(),    
-    'booking-create'   => (new BookingController)->create(),   
-    'booking-store' =>(new BookingController())->store(),
+
+    'book-booking_list'     => (new BookingController)->index(),
+    'book-booking_create'   => (new BookingController)->create(),
+    'book-booking_store' => (new BookingController())->store(),
+
 
     default => (new HomeController)->index(),
 };
