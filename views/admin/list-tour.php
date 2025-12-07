@@ -21,7 +21,7 @@
                         <tr>
                             <td><?= $tour['id'] ?></td>
                             <td><?= $tour['name'] ?></td>
-                            <td><?= $tour['category_name'] ?></td>
+                            <td><?= $tour['category_id'] ?></td>
                             <td><?= number_format($tour['base_price']) ?> VND</td>
                             <td><?= $tour['duration'] ?> ngày</td>
                             <td>
