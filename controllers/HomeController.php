@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../models/BaseModel.php';
+require_once __DIR__ . '/../models/User.php';
 
 class HomeController
 {
@@ -7,8 +8,8 @@ class HomeController
 
     public function __construct()
     {
-        $this->userModel = new User();  // dùng model User, KHÔNG dùng BaseModel
-      
+        
+        $this->userModel = new User();  
     }
 
     public function index()
@@ -17,38 +18,42 @@ class HomeController
     }
 
     public function login()
-{
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $name     = $_POST['name'] ?? '';
-        $email    = $_POST['email'] ?? '';
-        $password = $_POST['password'] ?? '';
-
-        $user = $this->baseModel->checkLogin($email, $password);
-
-        if ($user) {
-            $_SESSION['user'] = $user;
-
-            // Kiểm tra nếu user là admin
-            if (isset($user['role']) && $user['role'] === 'admin') {
-                header("Location: index.php?action=admin"); // redirect vào trang admin
+    {
+        $method = $_SERVER['REQUEST_METHOD'];
+        if ($method == 'POST') {
+            $user = new User();
+            $check = $user->checkLogin($_POST['email'], $_POST['password']);
+            if ($check) {
+                $_SESSION['success'][] = "Đăng nhập thành công";
+                // Thông tin user đã đăng nhập
+                $_SESSION['userLogin'] = [
+                    'id' => $check['id'],
+                    'name' => $check['name'],
+                    'role' => $check['role'],
+                ];
+                if ($check['role'] == 1) {
+                    header("Location:" . BASE_URL . "?action=admin-dashboard");
+                    exit();
+                }
+                header("Location:" . BASE_URL);
+                exit();
             } else {
-                header("Location: index.php?action=home");  // redirect vào trang home bình thường
+                $_SESSION['error'][] = "Đăng nhập thất bại";
+                header("Location:" . BASE_URL . "?action=login");
+                exit();
             }
-            exit;
-        } else {
-            $error = "Email hoặc mật khẩu sai!";
-            include __DIR__ . '/../views/login.php';
         }
-    } else {
-        include __DIR__ . '/../views/login.php';
+        $title = "Trang đăng nhập";
+        $view = "login";
+        require_once PATH_VIEW . 'main.php';
     }
-}
+
 
     public function logout()
     {
-        session_unset();
-        session_destroy();
-        header("Location: index.php?action=login");
-        exit;
+        unset($_SESSION['userLogin']);
+        $_SESSION['success'][] = "Đăng xuất thành công";
+        header("Location:" . BASE_URL . "?action=login");
+        exit();
     }
 }

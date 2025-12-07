@@ -151,6 +151,7 @@ class Booking
 
         return ["success" => false, "message" => $stmt->error];
     }
+    
 
     // ========== guide busy ==========
     public function isGuideBusy($guide_id, $start_date, $end_date, $ignore = null)
@@ -383,11 +384,7 @@ public function updateBooking($id, $data)
     if (!$stmt->execute()) {
         return ["success" => false, "message" => $stmt->error];
     }
-
-    // Remove old customers
     $this->conn->query("DELETE FROM booking_customers WHERE booking_id = " . (int)$id);
-
-    // Re-assign customers
     if (!empty($customer_ids)) {
         $assign = $this->assignCustomers($id, $customer_ids);
         if (!$assign['success']) {

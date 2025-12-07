@@ -57,7 +57,6 @@ form button:hover {
 }
 </style>
 
-
 <h2>Sửa Booking</h2>
 
 <?php if (!empty($message)): ?>
@@ -125,7 +124,8 @@ form button:hover {
     <select name="guide_id">
         <option value="">-- Chọn hướng dẫn viên --</option>
         <?php foreach ($guides as $guide): ?>
-            <option value="<?= $guide['guide_id'] ?>" <?= (isset($_POST['guide_id']) && $_POST['guide_id'] == $guide['guide_id']) ? 'selected' : '' ?>>
+            <option value="<?= $guide['guide_id'] ?>"
+                <?= ($booking['tour_guide_id'] == $guide['guide_id']) ? 'selected' : '' ?>>
                 <?= htmlspecialchars($guide['full_name'] ?? '') ?>
             </option>
         <?php endforeach; ?>
@@ -140,9 +140,11 @@ form button:hover {
                 $cid = $customer['customer_id'] ?? $customer['id'];
                 $cname = $customer['full_name'] ?? $customer['name'] ?? '';
                 $cphone = $customer['phone'] ?? '';
+
+                // FIX: Hiển thị đúng khách đã chọn trước đó
+                $checked = in_array($cid, $selected_customers) ? "checked" : "";
             ?>
-            <input type="checkbox" name="customer_ids[]" value="<?= $cid ?>" 
-                <?= (isset($_POST['customer_ids']) && in_array($cid, $_POST['customer_ids'])) ? 'checked' : '' ?>>
+            <input type="checkbox" name="customer_ids[]" value="<?= $cid ?>" <?= $checked ?>>
             <?= htmlspecialchars($cname) ?> (<?= htmlspecialchars($cphone) ?>)<br>
         <?php endforeach; ?>
     <?php else: ?>
