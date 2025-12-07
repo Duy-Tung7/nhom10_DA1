@@ -5,7 +5,7 @@ class Booking
 
     public function __construct()
     {
-        $this->conn = new mysqli('localhost', 'root', '', 'da1_nhom10');
+        $this->conn = new mysqli('localhost', 'root', '', 'da1');
         if ($this->conn->connect_error) {
             die("Database connection failed: " . $this->conn->connect_error);
         }
@@ -31,7 +31,7 @@ class Booking
 
     public function getAllGuides()
     {
-        $sql = "SELECT tour_id, guide_id, full_name, phone, status, assigned_date FROM tour_guides";
+        $sql = "SELECT tours_id, guide_id, full_name, phone, status, assigned_date FROM tour_guides";
         $result = $this->conn->query($sql);
         return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
     }
@@ -155,12 +155,12 @@ class Booking
     // ========== guide busy ==========
     public function isGuideBusy($guide_id, $start_date, $end_date, $ignore = null)
     {
-        
         $sql = "SELECT id FROM bookings 
                 WHERE tour_guide_id = ?
                 AND start_date <= ?
                 AND end_date >= ?";
-                if ($ignore) $sql .= " AND id != ?";
+
+        if ($ignore) $sql .= " AND id != ?";
 
         $stmt = $this->conn->prepare($sql);
 
@@ -247,6 +247,7 @@ class Booking
         if (!$booking) {
             return ['success' => false, 'message' => 'Booking không tồn tại.'];
         }
+
         $start = $booking['start_date'];
         $end   = $booking['end_date'];
 
