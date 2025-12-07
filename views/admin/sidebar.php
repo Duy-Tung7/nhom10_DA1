@@ -20,7 +20,7 @@
             <?php endforeach; ?>
         </div>
 
-            <a href="<?= BASE_URL ?>?action=booking-list" class="list-group-item list-group-item-action">Danh sách booking</a>
+            <a href="<?= BASE_URL ?>?action=book-booking_list" class="list-group-item list-group-item-action">Danh sách booking</a>
             <a href="<?= BASE_URL ?>?action=admin-list" class="list-group-item list-group-item-action">Danh sách khách hàng </a>
         <a href="<?= BASE_URL ?>?action=admin-list-tour" class="list-group-item list-group-item-action">Danh sách tất cả các Tour</a>
     </div>  
