@@ -1,5 +1,5 @@
 <?php
-
+require_once 'controllers/BookingController.php';
 $action = $_GET['action'] ?? '/';
 
 
@@ -36,7 +36,10 @@ match ($action) {
     'admin-update-tour' => (new TourController)->update(),
     'admin-delete-tour' => (new TourController)->delete(),
     'admin-tour-detail'  => (new TourController)->detail(),
-
+    //=====================QL Booking========================
+    'booking-list' => (new BookingController())->index(),
+    'booking-careate' => (new BookingController())->create(),
+    
     // ------------- Guide (Quản lý HDV) -------------
     // --- Guide (Đã đầy đủ chức năng) ---
     'admin-list-guides'   => (new GuidesController)->index(),
@@ -46,6 +49,8 @@ match ($action) {
     'admin-update-guide'  => (new GuidesController)->update(), // Xử lý lưu sửa
     'admin-delete-guide'  => (new GuidesController)->delete(), // Xóa
     'admin-detail-guide'  => (new GuidesController)->detail(), // Chi tiết
+
+
     // ==================== User ====================
     'home'      => (new HomeController)->index(),
     'login'     => (new HomeController)->login(),
@@ -59,6 +64,9 @@ match ($action) {
     'home'   => (new HomeController)->index(),
     'login'  => (new HomeController)->login(),
     'logout' => (new HomeController)->logout(),
+    
+    // ... code phía trên ...
+
 
     default => (new HomeController)->index(),
 };

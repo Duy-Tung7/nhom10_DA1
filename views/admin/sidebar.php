@@ -12,6 +12,7 @@
             </a>
         </li>
 
+
         <li class="nav-item">
             <a href="index.php?action=admin-list-categories" class="nav-link text-white <?php echo (isset($_GET['action']) && $_GET['action'] == 'admin-list-categories') ? 'active' : ''; ?>">
                 <i class="fas fa-list me-2"></i> QL Danh mục
@@ -40,7 +41,12 @@
                 </ul>
             </div>
         </li>
-
+        <li class="nav-item">
+    <a href="index.php?action=booking-list" 
+       class="nav-link text-white <?php echo (isset($_GET['action']) && $_GET['action'] == 'booking-list') ? 'active' : ''; ?>">
+        <i class="fas fa-calendar-check me-2"></i> QL Booking
+    </a>
+</li>
         <li class="nav-item">
             <a href="index.php?action=admin-list-guides" class="nav-link text-white <?php echo (isset($_GET['action']) && $_GET['action'] == 'admin-list-guides') ? 'active' : ''; ?>">
                 <i class="fas fa-id-card-alt me-2"></i> QL Hướng dẫn viên

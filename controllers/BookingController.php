@@ -14,10 +14,15 @@ class BookingController
     // Danh sách booking
     // ===============================
     public function index()
-    {
-        $bookings = $this->bookingModel->getAllBookings();
-        include __DIR__ . '/../views/book/booking_list.php';
-    }
+{
+    $bookings = $this->bookingModel->getAllBookings();
+    
+    // Khai báo biến $view để main.php biết cần tải nội dung nào
+    $view = 'book/booking_list'; 
+    
+    // Gọi file layout chính (main.php) thay vì gọi trực tiếp file con
+    require_once __DIR__ . '/../views/main.php'; 
+}
 
     // ===============================
     // Form tạo booking

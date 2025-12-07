@@ -5,7 +5,8 @@ class Booking
 
     public function __construct()
     {
-        $this->conn = new mysqli('localhost', 'root', '', 'da1');
+        // Đảm bảo tên DB đúng như trong ảnh: da1_nhom10
+        $this->conn = new mysqli('localhost', 'root', '', 'da1_nhom10');
         if ($this->conn->connect_error) {
             die("Database connection failed: " . $this->conn->connect_error);
         }
@@ -18,6 +19,8 @@ class Booking
 
     public function getAllTours()
     {
+        // Code này đúng vì SELECT * sẽ lấy toàn bộ các trường: 
+        // id, category_id, name, base_price, duration, max_people...
         $sql = "SELECT * FROM tours ORDER BY id DESC";
         $result = $this->conn->query($sql);
         return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
@@ -31,6 +34,7 @@ class Booking
 
     public function getAllGuides()
     {
+        // Lưu ý: Đảm bảo bảng tour_guides của bạn có các trường này
         $sql = "SELECT tours_id, guide_id, full_name, phone, status, assigned_date FROM tour_guides";
         $result = $this->conn->query($sql);
         return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
@@ -38,7 +42,15 @@ class Booking
 
     public function getAllBookings()
     {
-        $sql = "SELECT b.*, t.name AS tour_name, t.type AS tour_type, b.guide_name
+        // === SỬA ĐỔI QUAN TRỌNG TẠI ĐÂY ===
+        // Trong ảnh bảng tours dùng 'category_id', code cũ dùng 'category' -> Đã sửa thành t.category_id
+        // Đã thêm t.base_price và t.duration để lấy thêm thông tin nếu cần hiển thị
+        $sql = "SELECT b.*, 
+                       t.name AS tour_name, 
+                       t.category_id AS tour_type, 
+                       t.base_price,
+                       t.duration,
+                       b.guide_name
                 FROM bookings b
                 LEFT JOIN tours t ON t.id = b.tour_id
                 ORDER BY b.id DESC";
@@ -76,25 +88,29 @@ class Booking
     {
         $start_date  = $this->formatDate($data['start_date'] ?? null);
         $end_date    = $this->formatDate($data['end_date'] ?? null);
-        $finish_date = $this->formatDate($data['finish_date'] ?? null);
+        // Lưu ý: Kiểm tra xem bảng bookings của bạn có cột finish_date không.
+        // Nếu không có hãy xóa dòng dưới đây.
+        $finish_date = $this->formatDate($data['finish_date'] ?? null); 
+        
         $num_people  = (int)($data['num_people'] ?? 0);
         $note        = $data['note'] ?? null;
         $total_price = (float)($data['total_price'] ?? 0);
+        
         // NOTE: form uses guide_id; DB column is tour_guide_id
         $guide_id    = !empty($data['guide_id']) ? (int)$data['guide_id'] : null;
         $guide_name  = $data['guide_name'] ?? null;
 
-        // Required fields
+        // Required fields check
         if (empty($data['tour_id']) || empty($data['contact_name']) || empty($data['phone']) || empty($data['email'])) {
             return ["success" => false, "message" => "Các trường bắt buộc chưa được điền."];
         }
 
-        // If guide specified, check busy
+        // Check guide busy
         if ($guide_id && $this->isGuideBusy($guide_id, $start_date, $end_date)) {
             return ["success" => false, "message" => "Hướng dẫn viên đã bận trong khoảng thời gian này."];
         }
 
-        // If customer_ids present: basic validation (existence). Overlap checks occur in assignCustomers
+        // Customer handling
         $customer_ids = [];
         if (!empty($data['customer_ids']) && is_array($data['customer_ids'])) {
             foreach ($data['customer_ids'] as $cid) {
@@ -110,6 +126,8 @@ class Booking
         }
 
         // Insert booking
+        // Giả sử bảng bookings có cấu trúc như code cũ. 
+        // Nếu bảng bookings KHÔNG có cột finish_date, hãy xóa 'finish_date' khỏi câu SQL dưới.
         $stmt = $this->conn->prepare(
             "INSERT INTO bookings
             (tour_id, contact_name, phone, email, num_people, total_price, start_date, end_date, finish_date, tour_guide_id, guide_name, note, created_at)
@@ -136,11 +154,11 @@ class Booking
         if ($stmt->execute()) {
             $booking_id = $stmt->insert_id;
 
-            // assign customers if any: now assignCustomers returns array with success/message
+            // assign customers
             if (!empty($customer_ids)) {
                 $assignResult = $this->assignCustomers($booking_id, $customer_ids);
                 if (!$assignResult['success']) {
-                    // rollback: delete booking we just created (optional)
+                    // rollback: delete booking
                     $this->conn->query("DELETE FROM bookings WHERE id = " . (int)$booking_id);
                     return ["success" => false, "message" => $assignResult['message']];
                 }
@@ -183,10 +201,8 @@ class Booking
     }
 
     // ========== isCustomerBusy ==========
-    // Check if customer has any booking that overlaps [start_date, end_date]
     public function isCustomerBusy($customer_id, $start_date, $end_date, $exclude_booking_id = null)
     {
-        // Correct overlap logic: existing.start_date <= new_end AND existing.end_date >= new_start
         $sql = "SELECT COUNT(*) AS cnt
                 FROM booking_customers bc
                 JOIN bookings b ON bc.booking_id = b.id
@@ -239,10 +255,8 @@ class Booking
     }
 
     // ========== assignCustomers ==========
-    // Returns ['success'=>bool, 'message'=>string]
     public function assignCustomers($booking_id, $customer_ids)
     {
-        // get booking dates
         $booking = $this->getBookingById($booking_id);
         if (!$booking) {
             return ['success' => false, 'message' => 'Booking không tồn tại.'];
@@ -251,7 +265,6 @@ class Booking
         $start = $booking['start_date'];
         $end   = $booking['end_date'];
 
-        // Validate and check overlaps first (so it's atomic in logic)
         foreach ($customer_ids as $cid) {
             $cid = (int)$cid;
             if ($cid <= 0) {
@@ -268,7 +281,6 @@ class Booking
             }
         }
 
-        // Now insert
         $stmt = $this->conn->prepare("INSERT INTO booking_customers (booking_id, customer_id) VALUES (?, ?)");
         if (!$stmt) {
             return ['success' => false, 'message' => $this->conn->error];
@@ -278,7 +290,6 @@ class Booking
             $cid = (int)$cid;
             $stmt->bind_param("ii", $booking_id, $cid);
             if (!$stmt->execute()) {
-                // If any insert fails, return error (you could rollback multiple inserts here if needed)
                 return ['success' => false, 'message' => $stmt->error];
             }
         }
@@ -286,3 +297,4 @@ class Booking
         return ['success' => true, 'message' => 'Gán khách thành công.'];
     }
 }
+?>
