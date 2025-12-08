@@ -26,5 +26,5 @@ class CustomerController
         require_once PATH_VIEW . 'main.php';
     }
 
-    // Thêm/Sửa/Xóa sẽ tương tự, dựa vào form gửi POST
+   // 
 }

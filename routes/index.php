@@ -50,6 +50,7 @@ match ($action) {
     'book-booking_list'     => (new BookingController)->index(),
     'book-booking_create'   => (new BookingController)->create(),
     'book-booking_store' => (new BookingController())->store(),
+    
 
     default => (new HomeController)->index(),
 };
