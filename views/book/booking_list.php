@@ -6,101 +6,102 @@
     <title>Danh sách Booking</title>
 
     <style>
-        .sidebar {
-            width: 250px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            float: left;
-            margin-right: 20px;
-        }
+.sidebar {
+    width: 250px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
 
-        .sidebar .title {
-            padding: 10px;
-            background: #f0f0f0;
-            cursor: pointer;
-            border-bottom: 1px solid #ccc;
-        }
+/* Tiêu đề */
+.sidebar .title {
+    padding: 10px;
+    background: #f0f0f0;
+    cursor: pointer;
+    border-bottom: 1px solid #ccc;
+    position: relative;
+}
 
-        .sidebar ul {
-            list-style: none;
-            margin: 0;
-            padding: 0;
-            display: none;
-        }
+/* Mặc định submenu ẩn */
+.sidebar ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: none;
+}
 
-        .sidebar .title:hover+ul,
-        .sidebar ul:hover {
-            display: block;
-        }
+/* Chỉ mở submenu khi hover vào .title */
+.sidebar .title:hover + ul {
+    display: block;
+}
 
-        .sidebar li {
-            padding: 10px;
-            border-bottom: 1px solid #eee;
-            cursor: pointer;
-            position: relative;
-        }
+/* Giữ submenu mở khi hover trong chính submenu */
+.sidebar ul:hover {
+    display: block;
+}
 
-        .mini-btn {
-            position: absolute;
-            right: 10px;
-            top: 10px;
-        }
+.sidebar li {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    position: relative;
+}
 
-        .content {
-            margin-left: 280px;
-        }
+.sidebar li:hover {
+    background: #f9f9f9;
+}
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
+.mini-btn {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    cursor: pointer;
+}
+.tourTable table {
+    width: 100%;
+    border-collapse: collapse; /* gộp đường viền */
+    margin-top: 10px;
+}
 
-        th,
-        td {
-            border: 1px solid #ccc;
-            padding: 8px 12px;
-        }
+.tourTable th, .tourTable td {
+    border: 1px solid #ccc;
+    padding: 8px 12px;
+    text-align: left;
+}
 
-        th {
-            background: #f0f0f0;
-        }
+.tourTable th {
+    background-color: #f0f0f0;
+}
 
-        tr:hover {
-            background: #f9f9f9;
-        }
+.tourTable tr:hover {
+    background-color: #f9f9f9;
+}
+.tourTable {
+    display: none; /* Ẩn mặc định */
+}
+</style>
 
-        .tourTable {
-            display: none;
-        }
+<div class="sidebar">
+    <div class="title">Quản lý Booking</div>
+    <table class="table">
+    <ul>
+        <li onclick="showTour('domestic')">
+            Tour trong nước
+            <button class="mini-btn" onclick="event.stopPropagation(); openForm('domestic')">+</button>
+        </li>
 
-        .actions a {
-            margin-right: 5px;
-        }
-    </style>
-</head>
+        <li onclick="showTour('international')">
+            Tour quốc tế
+            <button class="mini-btn" onclick="event.stopPropagation(); openForm('international')">+</button>
+        </li>
 
-<body>
+        <li onclick="showTour('custom')">
+            Tour theo yêu cầu
+            <button class="mini-btn" onclick="event.stopPropagation(); openForm('custom')">+</button>
+        </li>
+    </ul>
+    </table>
+</div>
 
-    <div class="sidebar">
-        <div class="title">Quản lý Booking</div>
-        <ul>
-            <li onclick="showTour('domestic')">
-                Tour trong nước
-                <button class="mini-btn" onclick="event.stopPropagation(); openForm('domestic')">+</button>
-            </li>
-
-            <li onclick="showTour('international')">
-                Tour quốc tế
-                <button class="mini-btn" onclick="event.stopPropagation(); openForm('international')">+</button>
-            </li>
-
-            <li onclick="showTour('custom')">
-                Tour theo yêu cầu
-                <button class="mini-btn" onclick="event.stopPropagation(); openForm('custom')">+</button>
-            </li>
-        </ul>
-    </div>
 
     <div class="content">
 

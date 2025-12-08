@@ -3,14 +3,14 @@
     {
         protected $conn;
 
-        public function __construct()
-        {
-            $this->conn = new mysqli('localhost', 'root', '', 'da1_nhom10');
-            if ($this->conn->connect_error) {
-                die("Database connection failed: " . $this->conn->connect_error);
-            }
-            $this->conn->set_charset("utf8mb4");
+    public function __construct()
+    {
+        $this->conn = new mysqli('localhost', 'root', '', 'da1_nhom10');
+        if ($this->conn->connect_error) {
+            die("Database connection failed: " . $this->conn->connect_error);
         }
+        $this->conn->set_charset("utf8mb4");
+    }
 
         public function getLastInsertId()
         {
@@ -30,12 +30,12 @@
             return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
         }
 
-        public function getAllGuides()
-        {
-            $sql = "SELECT tour_id, guide_id, full_name, phone, status, assigned_date FROM tour_guides";
-            $result = $this->conn->query($sql);
-            return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
-        }
+    public function getAllGuides()
+    {
+        $sql = "SELECT tour_id, guide_id, full_name, phone, status, assigned_date FROM tour_guides";
+        $result = $this->conn->query($sql);
+        return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+    }
 
         public function getAllBookings()
         {
@@ -153,15 +153,15 @@
             return ["success" => false, "message" => $stmt->error];
         }
 
-        // ========== guide busy ==========
-        public function isGuideBusy($guide_id, $start_date, $end_date, $ignore = null)
-        {
-
-            $sql = "SELECT id FROM bookings 
-                    WHERE tour_guide_id = ?
-                    AND start_date <= ?
-                    AND end_date >= ?";
-            if ($ignore) $sql .= " AND id != ?";
+    // ========== guide busy ==========
+    public function isGuideBusy($guide_id, $start_date, $end_date, $ignore = null)
+    {
+        
+        $sql = "SELECT id FROM bookings 
+                WHERE tour_guide_id = ?
+                AND start_date <= ?
+                AND end_date >= ?";
+                if ($ignore) $sql .= " AND id != ?";
 
             $stmt = $this->conn->prepare($sql);
 
@@ -239,17 +239,17 @@
             return (int)$result['cnt'] > 0;
         }
 
-        // ========== assignCustomers ==========
-        // Returns ['success'=>bool, 'message'=>string]
-        public function assignCustomers($booking_id, $customer_ids)
-        {
-            // get booking dates
-            $booking = $this->getBookingById($booking_id);
-            if (!$booking) {
-                return ['success' => false, 'message' => 'Booking không tồn tại.'];
-            }
-            $start = $booking['start_date'];
-            $end   = $booking['end_date'];
+    // ========== assignCustomers ==========
+    // Returns ['success'=>bool, 'message'=>string]
+    public function assignCustomers($booking_id, $customer_ids)
+    {
+        // get booking dates
+        $booking = $this->getBookingById($booking_id);
+        if (!$booking) {
+            return ['success' => false, 'message' => 'Booking không tồn tại.'];
+        }
+        $start = $booking['start_date'];
+        $end   = $booking['end_date'];
 
             // Validate and check overlaps first (so it's atomic in logic)
             foreach ($customer_ids as $cid) {
@@ -283,7 +283,6 @@
                 }
             }
 
-            return ['success' => true, 'message' => 'Gán khách thành công.'];
-        }
-       
+        return ['success' => true, 'message' => 'Gán khách thành công.'];
     }
+}
