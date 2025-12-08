@@ -8,8 +8,7 @@ class HomeController
 
     public function __construct()
     {
-        
-        $this->userModel = new User();  
+        $this->userModel = new User();
     }
 
     public function index()
@@ -19,39 +18,46 @@ class HomeController
 
     public function login()
     {
-        $method = $_SERVER['REQUEST_METHOD'];
-        if ($method == 'POST') {
-            $user = new User();
-            $check = $user->checkLogin($_POST['email'], $_POST['password']);
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+            $email    = $_POST['email'] ?? '';
+            $password = $_POST['password'] ?? '';
+
+            $check = $this->userModel->checkLogin($email, $password);
+
             if ($check) {
+
                 $_SESSION['success'][] = "Đăng nhập thành công";
-                // Thông tin user đã đăng nhập
-                $_SESSION['userLogin'] = [
-                    'id' => $check['id'],
+
+                // THỐNG NHẤT: dùng session 'user'
+                $_SESSION['user'] = [
+                    'id'   => $check['id'],
                     'name' => $check['name'],
-                    'role' => $check['role'],
+                    'role' => $check['role']
                 ];
+
                 if ($check['role'] == 1) {
                     header("Location:" . BASE_URL . "?action=admin-dashboard");
                     exit();
                 }
+
                 header("Location:" . BASE_URL);
                 exit();
-            } else {
-                $_SESSION['error'][] = "Đăng nhập thất bại";
-                header("Location:" . BASE_URL . "?action=login");
-                exit();
             }
+
+            $_SESSION['error'][] = "Email hoặc mật khẩu sai!";
+            header("Location:" . BASE_URL . "?action=login");
+            exit();
         }
+
         $title = "Trang đăng nhập";
         $view = "login";
         require_once PATH_VIEW . 'main.php';
     }
 
-
     public function logout()
     {
-        unset($_SESSION['userLogin']);
+        unset($_SESSION['user']);
         $_SESSION['success'][] = "Đăng xuất thành công";
         header("Location:" . BASE_URL . "?action=login");
         exit();

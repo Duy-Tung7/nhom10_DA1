@@ -37,28 +37,49 @@ class BookingController
     // ===============================
     // Lưu booking
     // ===============================
-    public function store()
-    {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') return;
+  public function store()
+{
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $data = $_POST;
-        $data['customer_ids'] = $_POST['customer_ids'] ?? [];
 
+        // ✅ 1. Tạo booking (NHẬN KẾT QUẢ DẠNG MẢNG)
         $result = $this->bookingModel->createBooking($data);
 
         if ($result['success']) {
+
+            $booking_id = (int)$result['booking_id'];
+
+            // ✅ 2. Lưu danh sách khách phụ
+            $customer_ids = $_POST['customer_ids'] ?? [];
+
+            if (!empty($customer_ids)) {
+                foreach ($customer_ids as $cid) {
+                    $cid = (int)$cid;
+                    if ($cid > 0) {
+                        $this->bookingModel->addCustomerToBooking($booking_id, $cid);
+                    }
+                }
+            }
+
+            // ✅ 3. Quay về danh sách
             header("Location: index.php?action=booking-list");
             exit;
+        } 
+        else {
+            $message = $result['message'];
         }
-
-        // Nếu lỗi → load lại view create
-        $message = $result['message'];
-        $tours = $this->bookingModel->getAllTours();
-        $guides = $this->bookingModel->getAllGuides();
-        $customers = $this->bookingModel->getAllCustomers();
-
-        include __DIR__ . '/../views/book/booking_create.php';
     }
+
+    // ✅ Load lại form nếu có lỗi
+    $tours = $this->bookingModel->getAllTours();
+    $customers = $this->bookingModel->getAllCustomers();
+    $guides = $this->bookingModel->getAllGuides();
+
+    include __DIR__ . '/../views/book/booking_create.php';
+}
+
+
 
     // ===============================
     // Form sửa booking
@@ -81,6 +102,25 @@ class BookingController
 
         include __DIR__ . '/../views/book/booking_edit.php';
     }
+
+    // ===============================
+// Xem chi tiết booking
+// ===============================
+public function detail()
+{
+    $id = $_GET['id'] ?? 0;
+
+    $booking = $this->bookingModel->getBookingDetail($id);
+    if (!$booking) {
+        echo "Booking không tồn tại!";
+        return;
+    }
+
+    $customers = $this->bookingModel->getBookingDetail($id);
+
+    include __DIR__ . '/../views/book/booking_detail.php';
+}
+
 
     // ===============================
     // Cập nhật booking

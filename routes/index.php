@@ -28,6 +28,10 @@ match ($action) {
     'booking-list'     => (new BookingController)->index(),    
     'booking-create'   => (new BookingController)->create(),   
     'booking-store' =>(new BookingController())->store(),
+    'booking-edit'     => (new BookingController)->edit(),
+    'booking-update'   => (new BookingController)->update(),
+    'booking-detail'  => (new BookingController)->detail(),
+    
 
     
 
