@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <title>Danh sách Booking</title>
+
     <style>
         .sidebar {
             width: 250px;
@@ -80,7 +82,6 @@
     </table>
 </div>
 
-<div class="content">
 
 <?php
 // Nếu model trả mysqli_result, chuyển thành mảng associative
@@ -89,33 +90,34 @@ if ($bookings instanceof mysqli_result) {
 }
 $bookings = is_array($bookings) ? $bookings : [];
 
-$bookingsByType = [
-    'domestic' => [],
-    'international' => [],
-    'custom' => []
-];
+        <?php
+        $bookingsByType = [
+            'domestic' => [],
+            'international' => [],
+            'custom' => []
+        ];
 
 foreach ($bookings as $b) {
     $name = strtolower((string)($b['tour_name'] ?? ''));
 
-    // Danh sách tour trong nước
-    $domestic = [
-        "hạ long", "cát bà"
-    ];
+            $type = "custom";
 
-    // Danh sách tour nước ngoài
-    $international = [
-        "singapore", "malaysia"
-    ];
+            foreach ($domestic as $loc) {
+                if (str_contains($name, $loc)) {
+                    $type = "domestic";
+                    break;
+                }
+            }
 
-    $type = "custom"; // mặc định là theo yêu cầu
+            foreach ($international as $loc) {
+                if (str_contains($name, $loc)) {
+                    $type = "international";
+                    break;
+                }
+            }
 
-    foreach ($domestic as $loc) {
-        if (str_contains($name, $loc)) {
-            $type = "domestic";
-            break;
+            $bookingsByType[$type][] = $b;
         }
-    }
 
     foreach ($international as $loc) {
         if (str_contains($name, $loc)) {
@@ -199,9 +201,11 @@ foreach ($labels as $type => $label):
 
     </div>
 
-<?php endforeach; ?>
-
-</div>
+    <script>
+        function showTour(type) {
+            document.querySelectorAll('.tourTable').forEach(tbl => tbl.style.display = 'none');
+            document.getElementById(type).style.display = 'block';
+        }
 
 <script>
 function showTour(type) {
@@ -216,4 +220,5 @@ function openForm(type) {
 </script>
 
 </body>
+
 </html>
