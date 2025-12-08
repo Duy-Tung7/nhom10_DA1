@@ -122,18 +122,18 @@
     <input type="number" name="total_price" required step="0.01" value="<?= htmlspecialchars($_POST['total_price'] ?? 0) ?>">
     <br><br>
 
-    <!-- Ngày đi/đến/kết thúc -->
-    <label>Ngày đi:</label>
-    <input type="date" name="start_date" required value="<?= htmlspecialchars($_POST['start_date'] ?? '') ?>">
-    <br><br>
+ <label>Ngày đi:</label>
+<input type="date" id="start_date" name="start_date" placeholder="dd/mm/yyyy" required
+       value="<?= htmlspecialchars($_POST['start_date'] ?? '') ?>">
 
-    <label>Ngày đến:</label>
-    <input type="date" name="end_date" required value="<?= htmlspecialchars($_POST['end_date'] ?? '') ?>">
-    <br><br>
+<label>Ngày đến:</label>
+<input type="date" id="end_date" name="end_date" placeholder="dd/mm/yyyy" required
+       value="<?= htmlspecialchars($_POST['end_date'] ?? '') ?>">
 
-    <label>Ngày kết thúc:</label>
-    <input type="date" name="finish_date" value="<?= htmlspecialchars($_POST['finish_date'] ?? '') ?>">
-    <br><br>
+<label>Ngày kết thúc:</label>
+<input type="date" id="finish_date" name="finish_date" placeholder="dd/mm/yyyy"
+       value="<?= htmlspecialchars($_POST['finish_date'] ?? '') ?>">
+
 
     <!-- Chọn HDV -->
     <label>Chọn hướng dẫn viên:</label>
