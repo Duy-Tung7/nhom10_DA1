@@ -50,7 +50,7 @@
             $result = $this->bookingModel->createBooking($data);
 
             if ($result['success']) {
-                header("Location: " . BASE_URL . "?action=booking_list");
+                header("Location: " . BASE_URL . "?action=book-booking_list");
                 exit;
             }
 
@@ -64,6 +64,8 @@
             $view = "book/booking_create";
             require_once PATH_VIEW . 'main.php';
         }
+
+        
 
         // ===============================
         // Gán hướng dẫn viên
