@@ -57,7 +57,7 @@ foreach ($bookings as $b) {
 
         <div class="col-md-9 col-lg-10 p-4 booking-content">
             <h3 class="mb-4">Quản lý Booking</h3>
-
+            <a href="<?= BASE_URL ?>?action=booking-careate" class="btn btn-primary btn-sm">Thêm mới</a>
             <div class="menu">
                 <ul>
                     <li onclick="showTour('domestic')" id="tab-domestic">

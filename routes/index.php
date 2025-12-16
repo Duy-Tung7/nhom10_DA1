@@ -39,6 +39,7 @@ match ($action) {
     //=====================QL Booking========================
     'booking-list' => (new BookingController())->index(),
     'booking-careate' => (new BookingController())->create(),
+    'booking-store' => (new BookingController())->store(),
     
     // ------------- Guide (Quản lý HDV) -------------
     // --- Guide (Đã đầy đủ chức năng) ---
